@@ -1,8 +1,9 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { ArrowRight, Globe, Search, BarChart3, Zap, ChevronRight } from "lucide-react"
+import { ArrowRight, Globe, Search, BarChart3, Zap, ChevronRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 function AnimatedScore() {
@@ -47,7 +48,37 @@ const stats = [
 ]
 
 export default function HomePage() {
+  const router = useRouter()
   const [url, setUrl] = useState("")
+  const [scanning, setScanning] = useState(false)
+  const [scanError, setScanError] = useState("")
+
+  async function handleScan() {
+    if (!url.trim()) return
+    setScanError("")
+    setScanning(true)
+
+    try {
+      const res = await fetch("/api/scans/anonymous", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url.trim() }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setScanError(data.error || "Something went wrong")
+        setScanning(false)
+        return
+      }
+
+      router.push(`/scan/${data.id}`)
+    } catch {
+      setScanError("Network error. Please try again.")
+      setScanning(false)
+    }
+  }
 
   return (
     <div>
@@ -192,24 +223,47 @@ export default function HomePage() {
 
           {/* URL input */}
           <div className="mt-10 mx-auto max-w-xl">
-            <div className="flex gap-3">
-              <div className="relative flex-1">
-                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="url"
-                  placeholder="https://yourwebsite.com"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  className="h-12 w-full rounded-lg border border-primary/20 bg-card/50 pl-11 pr-4 font-mono text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-all focus:border-primary/50 focus:shadow-[0_0_20px_oklch(0.82_0.17_170_/_10%)]"
-                />
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleScan()
+              }}
+            >
+              <div className="flex gap-3">
+                <div className="relative flex-1">
+                  <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="url"
+                    placeholder="https://yourwebsite.com"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    disabled={scanning}
+                    className="h-12 w-full rounded-lg border border-primary/20 bg-card/50 pl-11 pr-4 font-mono text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-all focus:border-primary/50 focus:shadow-[0_0_20px_oklch(0.82_0.17_170_/_10%)] disabled:opacity-50"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={scanning || !url.trim()}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-6 font-medium glow-teal shrink-0"
+                >
+                  {scanning ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Starting...
+                    </>
+                  ) : (
+                    <>
+                      Scan
+                      <ChevronRight className="ml-1 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
               </div>
-              <Button size="lg" asChild className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-6 font-medium glow-teal shrink-0">
-                <Link href={`/signup${url ? `?url=${encodeURIComponent(url)}` : ""}`}>
-                  Scan
-                  <ChevronRight className="ml-1 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
+            </form>
+            {scanError && (
+              <p className="mt-3 text-center text-sm text-destructive font-mono">{scanError}</p>
+            )}
             <p className="mt-3 text-center text-xs text-muted-foreground/60 font-mono">
               Free to start. No credit card required.
             </p>

@@ -2,7 +2,7 @@
 
 import { signIn } from "next-auth/react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label"
 
 export default function SignupPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get("redirect")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -50,7 +52,9 @@ export default function SignupPage() {
       setError("Account created but could not sign in. Please try logging in.")
       setLoading(false)
     } else {
-      router.push("/dashboard")
+      // Claim any anonymous scans
+      await fetch("/api/scans/claim", { method: "POST" }).catch(() => {})
+      router.push(redirectTo || "/dashboard")
       router.refresh()
     }
   }

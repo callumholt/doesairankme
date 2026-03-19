@@ -73,9 +73,9 @@ export const verificationTokens = pgTable(
 
 export const scans = pgTable("scans", {
   id: text("id").primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+  userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
+  anonToken: text("anon_token"),
+  anonIp: text("anon_ip"),
   url: text("url").notNull(),
   domain: text("domain").notNull(),
   provider: text("provider").notNull().default("gemini"),
