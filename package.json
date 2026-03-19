@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "npx @biomejs/biome check .",
+    "lint:fix": "npx @biomejs/biome check --write .",
+    "db:push": "dotenv -e .env.local -- npx drizzle-kit push",
+    "db:studio": "dotenv -e .env.local -- npx drizzle-kit studio",
+    "db:generate": "dotenv -e .env.local -- npx drizzle-kit generate"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.1",
