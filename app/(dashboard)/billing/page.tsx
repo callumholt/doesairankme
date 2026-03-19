@@ -5,8 +5,8 @@ import { Check, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-const MONTHLY_PRICE_ID = "price_1TCbXbLMdZYvFHDsx7d1OCzi"
-const YEARLY_PRICE_ID = "price_1TCbXcLMdZYvFHDsASyziYQ3"
+const MONTHLY_PRICE_ID = process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY || ""
+const YEARLY_PRICE_ID = process.env.NEXT_PUBLIC_STRIPE_PRICE_YEARLY || ""
 
 const features = {
   free: ["3 scans per month", "Gemini provider", "Basic reports"],
