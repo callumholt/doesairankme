@@ -16,7 +16,14 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json()
-    const { url, provider, queryCount } = createScanSchema.parse(body)
+    const parsed = createScanSchema.parse(body)
+    const url = parsed.url
+    const queryCount = parsed.queryCount
+
+    // Resolve provider list: support both single and multi-provider
+    const providerList = parsed.providers && parsed.providers.length > 0
+      ? parsed.providers
+      : [parsed.provider || "gemini"]
 
     const db = getDb()
 
@@ -27,11 +34,13 @@ export async function POST(request: Request) {
     const plan = PLANS[(user?.plan as PlanId) || "free"]
 
     // Check provider access
-    if (!plan.providers.includes(provider)) {
-      return NextResponse.json(
-        { error: `${provider} is only available on the Pro plan. Upgrade to unlock all providers.` },
-        { status: 403 },
-      )
+    for (const provider of providerList) {
+      if (!plan.providers.includes(provider)) {
+        return NextResponse.json(
+          { error: `${provider} is only available on the Pro plan. Upgrade to unlock all providers.` },
+          { status: 403 },
+        )
+      }
     }
 
     // Check monthly scan limit
@@ -44,7 +53,7 @@ export async function POST(request: Request) {
       .from(scans)
       .where(and(eq(scans.userId, session.user.id), gte(scans.createdAt, startOfMonth)))
 
-    if (monthlyScans[0].count >= plan.scansPerMonth) {
+    if (monthlyScans[0].count + providerList.length > plan.scansPerMonth) {
       return NextResponse.json(
         { error: `You've used all ${plan.scansPerMonth} scans this month. Upgrade to Pro for unlimited scans.` },
         { status: 403 },
@@ -58,28 +67,36 @@ export async function POST(request: Request) {
       .from(scans)
       .where(and(eq(scans.userId, session.user.id), gte(scans.createdAt, oneHourAgo)))
 
-    if (recentScans[0].count >= 5) {
+    if (recentScans[0].count + providerList.length > 5) {
       return NextResponse.json({ error: "Rate limit exceeded. Max 5 scans per hour." }, { status: 429 })
     }
 
     const domain = new URL(url).hostname.replace(/^www\./, "")
-    const id = nanoid()
+    const ids: string[] = []
 
-    await db.insert(scans).values({
-      id,
-      userId: session.user.id,
-      url,
-      domain,
-      provider,
-      queryCount,
-      status: "pending",
-    })
+    for (const provider of providerList) {
+      const id = nanoid()
+      ids.push(id)
 
-    after(async () => {
-      await runScan(id)
-    })
+      await db.insert(scans).values({
+        id,
+        userId: session.user.id,
+        url,
+        domain,
+        provider,
+        queryCount,
+        status: "pending",
+      })
 
-    return NextResponse.json({ id }, { status: 201 })
+      after(async () => {
+        await runScan(id)
+      })
+    }
+
+    return NextResponse.json(
+      ids.length === 1 ? { id: ids[0] } : { ids },
+      { status: 201 },
+    )
   } catch (err) {
     if (err instanceof Error && err.name === "ZodError") {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 })

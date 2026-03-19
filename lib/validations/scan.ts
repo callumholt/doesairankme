@@ -1,10 +1,16 @@
 import { z } from "zod"
 
+const providerEnum = z.enum(["gemini", "openai", "perplexity-sonar", "perplexity-sonar-pro"])
+
 export const createScanSchema = z.object({
   url: z.string().url("Please enter a valid URL"),
-  provider: z.enum(["gemini", "openai", "perplexity-sonar", "perplexity-sonar-pro"]).default("gemini"),
+  provider: providerEnum.optional(),
+  providers: z.array(providerEnum).optional(),
   queryCount: z.number().int().min(3).max(20).default(10),
-})
+}).refine(
+  (data) => data.provider || (data.providers && data.providers.length > 0),
+  { message: "At least one provider is required" },
+)
 
 export const signupSchema = z.object({
   name: z.string().min(1, "Name is required"),

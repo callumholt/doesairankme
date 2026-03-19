@@ -3,12 +3,19 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { Lock, Zap } from "lucide-react"
+import { Lock, Zap, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+const ALL_PROVIDERS = [
+  { value: "gemini", label: "Gemini" },
+  { value: "openai", label: "OpenAI" },
+  { value: "perplexity-sonar", label: "Perplexity Sonar" },
+  { value: "perplexity-sonar-pro", label: "Perplexity Sonar Pro" },
+]
 
 const PRO_PROVIDERS = ["openai", "perplexity-sonar", "perplexity-sonar-pro"]
 
@@ -17,12 +24,27 @@ export default function NewScanPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [plan, setPlan] = useState<string>("free")
+  const [selectedProviders, setSelectedProviders] = useState<string[]>(["gemini"])
 
   useEffect(() => {
     fetch("/api/user/plan").then((r) => r.json()).then((d) => setPlan(d.plan || "free"))
   }, [])
 
-  const isFree = plan !== "pro"
+  const isPro = plan === "pro"
+
+  function toggleProvider(provider: string) {
+    setSelectedProviders((prev) => {
+      if (prev.includes(provider)) {
+        if (prev.length === 1) return prev // must keep at least one
+        return prev.filter((p) => p !== provider)
+      }
+      return [...prev, provider]
+    })
+  }
+
+  function selectAll() {
+    setSelectedProviders(ALL_PROVIDERS.map((p) => p.value))
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -31,7 +53,6 @@ export default function NewScanPage() {
 
     const formData = new FormData(e.currentTarget)
     let url = formData.get("url") as string
-    const provider = formData.get("provider") as string
     const queryCount = parseInt(formData.get("queryCount") as string, 10)
 
     // Add https:// if no protocol
@@ -39,11 +60,15 @@ export default function NewScanPage() {
       url = `https://${url}`
     }
 
+    const body = isPro && selectedProviders.length > 1
+      ? { url, providers: selectedProviders, queryCount }
+      : { url, provider: isPro ? selectedProviders[0] : (formData.get("provider") as string || "gemini"), queryCount }
+
     try {
       const res = await fetch("/api/scans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url, provider, queryCount }),
+        body: JSON.stringify(body),
       })
 
       if (!res.ok) {
@@ -53,8 +78,14 @@ export default function NewScanPage() {
         return
       }
 
-      const { id } = await res.json()
-      router.push(`/scans/${id}`)
+      const data = await res.json()
+
+      if (data.ids) {
+        // Multiple scans created, go to dashboard
+        router.push("/dashboard")
+      } else {
+        router.push(`/scans/${data.id}`)
+      }
     } catch {
       setError("Network error. Please try again.")
       setLoading(false)
@@ -92,33 +123,76 @@ export default function NewScanPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="provider" className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-                AI Provider
-              </Label>
-              <Select name="provider" defaultValue="gemini">
-                <SelectTrigger className="bg-background/50 border-border/50">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gemini">Gemini</SelectItem>
-                  {PRO_PROVIDERS.map((p) => (
-                    <SelectItem key={p} value={p} disabled={isFree}>
-                      <span className="flex items-center gap-2">
-                        {p === "openai" ? "OpenAI" : p === "perplexity-sonar" ? "Perplexity Sonar" : "Perplexity Sonar Pro"}
-                        {isFree && <Lock className="h-3 w-3 text-muted-foreground/40" />}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {isFree && (
-                <Link
-                  href="/billing"
-                  className="flex items-center gap-1.5 text-xs text-primary hover:underline underline-offset-2 mt-1"
-                >
-                  <Zap className="h-3 w-3" />
-                  Upgrade to Pro to unlock all providers
-                </Link>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                  AI Provider{isPro ? "s" : ""}
+                </Label>
+                {isPro && selectedProviders.length < ALL_PROVIDERS.length && (
+                  <button
+                    type="button"
+                    onClick={selectAll}
+                    className="text-xs text-primary hover:underline underline-offset-2 font-mono"
+                  >
+                    Select all
+                  </button>
+                )}
+              </div>
+
+              {isPro ? (
+                <div className="grid grid-cols-2 gap-2">
+                  {ALL_PROVIDERS.map((provider) => {
+                    const isSelected = selectedProviders.includes(provider.value)
+                    return (
+                      <button
+                        key={provider.value}
+                        type="button"
+                        onClick={() => toggleProvider(provider.value)}
+                        className={`flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm transition-all text-left ${
+                          isSelected
+                            ? "border-primary/40 bg-primary/[0.08] text-foreground"
+                            : "border-border/50 bg-background/50 text-muted-foreground hover:border-border hover:text-foreground"
+                        }`}
+                      >
+                        <div
+                          className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-all ${
+                            isSelected
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-muted-foreground/30"
+                          }`}
+                        >
+                          {isSelected && <Check className="h-3 w-3" />}
+                        </div>
+                        {provider.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : (
+                <>
+                  <Select name="provider" defaultValue="gemini">
+                    <SelectTrigger className="bg-background/50 border-border/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="gemini">Gemini</SelectItem>
+                      {PRO_PROVIDERS.map((p) => (
+                        <SelectItem key={p} value={p} disabled>
+                          <span className="flex items-center gap-2">
+                            {p === "openai" ? "OpenAI" : p === "perplexity-sonar" ? "Perplexity Sonar" : "Perplexity Sonar Pro"}
+                            <Lock className="h-3 w-3 text-muted-foreground/40" />
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Link
+                    href="/billing"
+                    className="flex items-center gap-1.5 text-xs text-primary hover:underline underline-offset-2 mt-1"
+                  >
+                    <Zap className="h-3 w-3" />
+                    Upgrade to Pro to unlock all providers
+                  </Link>
+                </>
               )}
             </div>
 
@@ -139,13 +213,20 @@ export default function NewScanPage() {
               </Select>
             </div>
 
-            {isFree && (
+            {!isPro && (
               <div className="rounded-md border border-primary/15 bg-primary/[0.04] p-3 text-xs text-muted-foreground">
                 <span className="font-mono text-primary font-medium">Free plan:</span>{" "}
                 3 scans per month.{" "}
                 <Link href="/billing" className="text-primary underline underline-offset-2">
                   Upgrade for unlimited.
                 </Link>
+              </div>
+            )}
+
+            {isPro && selectedProviders.length > 1 && (
+              <div className="rounded-md border border-primary/15 bg-primary/[0.04] p-3 text-xs text-muted-foreground">
+                <span className="font-mono text-primary font-medium">{selectedProviders.length} providers selected</span>
+                {" "}&mdash; this will create {selectedProviders.length} parallel scans, one per provider.
               </div>
             )}
           </CardContent>
@@ -155,7 +236,11 @@ export default function NewScanPage() {
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 glow-teal"
               disabled={loading}
             >
-              {loading ? "Starting scan..." : "Start Scan"}
+              {loading
+                ? "Starting scan..."
+                : selectedProviders.length > 1 && isPro
+                  ? `Start ${selectedProviders.length} Scans`
+                  : "Start Scan"}
             </Button>
           </CardFooter>
         </form>

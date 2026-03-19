@@ -28,7 +28,10 @@ export function ScanCard({ scan }: { scan: Scan }) {
       <Card className={`border-l-[3px] ${getBorderColour(scan.score)} transition-all duration-200 hover:scale-[1.01] hover:shadow-md hover:shadow-[#14F0C3]/5 hover:border-[#14F0C3]/20`}>
         <CardContent className="flex items-center gap-4 py-4">
           <div className="flex-1 min-w-0">
-            <p className="font-medium truncate">{scan.domain}</p>
+            <p className="font-medium truncate">
+              {scan.domain}
+              <span className="ml-2 text-xs font-mono text-muted-foreground/60">{scan.provider}</span>
+            </p>
             <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
               {isRunning ? (
                 <>
