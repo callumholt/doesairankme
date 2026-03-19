@@ -52,34 +52,48 @@ export default function NewScanPage() {
 
   return (
     <div className="mx-auto max-w-lg">
-      <Card>
+      <Card className="border-border/50 bg-card/80">
         <CardHeader>
-          <CardTitle>New Scan</CardTitle>
+          <CardTitle className="text-xl font-semibold tracking-tight">New Scan</CardTitle>
           <CardDescription>
             Enter a URL to test how discoverable it is to AI assistants.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            {error && <p className="text-sm text-destructive">{error}</p>}
+          <CardContent className="space-y-5">
+            {error && (
+              <p className="text-sm text-destructive bg-destructive/10 rounded-md py-2 px-3">
+                {error}
+              </p>
+            )}
 
             <div className="space-y-2">
-              <Label htmlFor="url">Website URL</Label>
-              <Input id="url" name="url" placeholder="https://example.com" required />
+              <Label htmlFor="url" className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                Website URL
+              </Label>
+              <Input
+                id="url"
+                name="url"
+                placeholder="https://example.com"
+                required
+                className="h-12 text-base bg-background/50 border-border/50 focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:border-primary/40 font-mono placeholder:font-sans placeholder:text-muted-foreground/40"
+              />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="provider">AI Provider</Label>
+              <Label htmlFor="provider" className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                AI Provider
+              </Label>
               <Select name="provider" defaultValue="gemini">
-                <SelectTrigger>
+                <SelectTrigger className="bg-background/50 border-border/50">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="gemini">Gemini</SelectItem>
-                  <SelectItem value="openai" disabled>
+                  <SelectItem value="openai" disabled className="text-muted-foreground/40">
                     OpenAI (coming soon)
                   </SelectItem>
-                  <SelectItem value="perplexity" disabled>
+                  <SelectItem value="perplexity" disabled className="text-muted-foreground/40">
                     Perplexity (coming soon)
                   </SelectItem>
                 </SelectContent>
@@ -87,9 +101,11 @@ export default function NewScanPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="queryCount">Number of Queries</Label>
+              <Label htmlFor="queryCount" className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                Number of Queries
+              </Label>
               <Select name="queryCount" defaultValue="10">
-                <SelectTrigger>
+                <SelectTrigger className="bg-background/50 border-border/50">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -102,7 +118,11 @@ export default function NewScanPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 glow-teal"
+              disabled={loading}
+            >
               {loading ? "Starting scan..." : "Start Scan"}
             </Button>
           </CardFooter>

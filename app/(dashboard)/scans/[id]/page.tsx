@@ -3,10 +3,42 @@
 import { useParams } from "next/navigation"
 import { AlertCircle } from "lucide-react"
 import { useScanPolling } from "@/hooks/use-scan-polling"
-import { ScoreBadge } from "@/components/score-badge"
 import { ScanProgress } from "@/components/scan-progress"
 import { ResultsTable } from "@/components/results-table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
+function HeroScore({ score }: { score: number | null }) {
+  if (score === null) return null
+
+  const isLow = score < 30
+  const isMid = score >= 30 && score < 60
+
+  const glowColour = isLow
+    ? "shadow-[0_0_60px_-10px_rgba(239,68,68,0.35)]"
+    : isMid
+      ? "shadow-[0_0_60px_-10px_rgba(245,158,11,0.35)]"
+      : "shadow-[0_0_60px_-10px_rgba(20,240,195,0.35)]"
+
+  const textColour = isLow
+    ? "text-red-400"
+    : isMid
+      ? "text-amber-400"
+      : "text-[#14F0C3]"
+
+  const borderColour = isLow
+    ? "border-red-500/20"
+    : isMid
+      ? "border-amber-500/20"
+      : "border-[#14F0C3]/20"
+
+  return (
+    <div className={`flex flex-col items-center justify-center rounded-xl border ${borderColour} bg-card p-8 ${glowColour}`}>
+      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">AI Discoverability Score</p>
+      <span className={`font-mono text-7xl font-bold tabular-nums ${textColour}`}>{score}</span>
+      <p className="text-xs text-muted-foreground mt-3 font-mono">/ 100</p>
+    </div>
+  )
+}
 
 export default function ScanDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -15,7 +47,10 @@ export default function ScanDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-muted-foreground">Loading scan...</p>
+        <div className="flex items-center gap-3">
+          <div className="h-2 w-2 rounded-full bg-[#14F0C3] animate-pulse" />
+          <p className="text-muted-foreground font-mono text-sm">Loading scan...</p>
+        </div>
       </div>
     )
   }
@@ -33,8 +68,8 @@ export default function ScanDetailPage() {
   if (scan.status === "failed") {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">{scan.domain}</h1>
-        <Card className="border-destructive">
+        <h1 className="text-2xl font-bold tracking-tight">{scan.domain}</h1>
+        <Card className="border-destructive/50">
           <CardContent className="flex items-center gap-3 py-6">
             <AlertCircle className="h-5 w-5 text-destructive" />
             <div>
@@ -50,8 +85,8 @@ export default function ScanDetailPage() {
   if (isRunning) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">{scan.domain}</h1>
-        <Card>
+        <h1 className="text-2xl font-bold tracking-tight">{scan.domain}</h1>
+        <Card className="border-[#14F0C3]/10">
           <CardHeader>
             <CardTitle>Scan in progress</CardTitle>
           </CardHeader>
@@ -69,52 +104,43 @@ export default function ScanDetailPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{scan.domain}</h1>
-          <p className="text-sm text-muted-foreground">
-            Scanned {new Date(scan.createdAt).toLocaleDateString()} via {scan.provider}
-            {scan.contentSource && ` (${scan.contentSource})`}
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">{scan.domain}</h1>
+        <p className="text-sm text-muted-foreground mt-1 font-mono">
+          Scanned {new Date(scan.createdAt).toLocaleDateString()} via {scan.provider}
+          {scan.contentSource && ` (${scan.contentSource})`}
+        </p>
+      </div>
+
+      {/* Hero score */}
+      <HeroScore score={scan.score} />
+
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">Appearance Rate</p>
+          <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
+            {scan.appearanceRate !== null ? `${Math.round(scan.appearanceRate * 100)}%` : "-"}
+          </p>
+        </div>
+        <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">Avg Position</p>
+          <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
+            {scan.avgPosition !== null ? scan.avgPosition.toFixed(1) : "-"}
+          </p>
+        </div>
+        <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">Found / Total</p>
+          <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
+            <span className="text-[#14F0C3]">{found.length}</span>
+            <span className="text-muted-foreground mx-1">/</span>
+            {scan.results.length}
           </p>
         </div>
       </div>
 
-      {/* Score header */}
-      <div className="grid grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="py-4 text-center">
-            <p className="text-sm text-muted-foreground">Score</p>
-            <div className="mt-1">
-              <ScoreBadge score={scan.score} className="text-lg px-3 py-1" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="py-4 text-center">
-            <p className="text-sm text-muted-foreground">Appearance Rate</p>
-            <p className="text-2xl font-bold mt-1">
-              {scan.appearanceRate !== null ? `${Math.round(scan.appearanceRate * 100)}%` : "-"}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="py-4 text-center">
-            <p className="text-sm text-muted-foreground">Avg Position</p>
-            <p className="text-2xl font-bold mt-1">{scan.avgPosition !== null ? scan.avgPosition.toFixed(1) : "-"}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="py-4 text-center">
-            <p className="text-sm text-muted-foreground">Found / Total</p>
-            <p className="text-2xl font-bold mt-1">
-              {found.length} / {scan.results.length}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Results table */}
-      <Card>
+      <Card className="border-[#14F0C3]/10">
         <CardHeader>
           <CardTitle>Query Results</CardTitle>
         </CardHeader>
@@ -125,14 +151,16 @@ export default function ScanDetailPage() {
 
       {/* Missed queries */}
       {missed.length > 0 && (
-        <Card>
+        <Card className="border-muted-foreground/10">
           <CardHeader>
-            <CardTitle>Missed Queries ({missed.length})</CardTitle>
+            <CardTitle className="text-muted-foreground">
+              Missed Queries <span className="font-mono text-sm">({missed.length})</span>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm">
               {missed.map((r) => (
-                <li key={r.id} className="text-muted-foreground">
+                <li key={r.id} className="text-muted-foreground/70 border-l-2 border-red-500/20 pl-3">
                   {r.query}
                 </li>
               ))}

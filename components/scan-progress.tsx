@@ -19,10 +19,19 @@ export function ScanProgress({ status, resultCount, queryCount }: { status: stri
 
   return (
     <div className="space-y-6">
-      <Progress value={progressPercent} className="h-2" />
+      {/* Teal progress bar with glow */}
+      <div className="relative">
+        <Progress value={progressPercent} className="h-2 [&>div]:bg-[#14F0C3] [&>div]:shadow-[0_0_10px_rgba(20,240,195,0.5)]" />
+        <div className="flex justify-between mt-2">
+          <span className="font-mono text-xs text-muted-foreground">{Math.round(progressPercent)}%</span>
+          {status === "searching" && queryCount > 0 && (
+            <span className="font-mono text-xs text-[#14F0C3]">{resultCount}/{queryCount} queries</span>
+          )}
+        </div>
+      </div>
 
       <div className="space-y-3">
-        {steps.map((step, i) => {
+        {steps.map((step) => {
           const stepIndex = stepOrder.indexOf(step.key)
           const isDone = currentIndex > stepIndex
           const isCurrent = currentIndex === stepIndex
@@ -35,13 +44,24 @@ export function ScanProgress({ status, resultCount, queryCount }: { status: stri
           return (
             <div key={step.key} className="flex items-center gap-3 text-sm">
               {isDone ? (
-                <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <CheckCircle2 className="h-4 w-4 text-[#14F0C3]" />
               ) : isCurrent ? (
-                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                <div className="relative">
+                  <Loader2 className="h-4 w-4 animate-spin text-[#14F0C3]" />
+                  <div className="absolute inset-0 h-4 w-4 rounded-full bg-[#14F0C3]/20 animate-ping" />
+                </div>
               ) : (
-                <Circle className="h-4 w-4 text-muted-foreground/40" />
+                <Circle className="h-4 w-4 text-muted-foreground/20" />
               )}
-              <span className={isDone || isCurrent ? "text-foreground" : "text-muted-foreground/60"}>{label}</span>
+              <span className={
+                isDone
+                  ? "text-muted-foreground"
+                  : isCurrent
+                    ? "text-[#14F0C3] font-medium"
+                    : "text-muted-foreground/40"
+              }>
+                {isCurrent ? <span className="font-mono">{label}</span> : label}
+              </span>
             </div>
           )
         })}

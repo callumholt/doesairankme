@@ -39,25 +39,52 @@ export default function LoginPage() {
   }
 
   return (
-    <Card>
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Sign in</CardTitle>
+    <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+      <CardHeader className="text-center space-y-3 pb-2">
+        <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary">
+          doesairank.me
+        </p>
+        <CardTitle className="text-2xl font-semibold tracking-tight">Sign in</CardTitle>
         <CardDescription>Enter your credentials to access your dashboard</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          {error && <p className="text-sm text-destructive text-center">{error}</p>}
+        <CardContent className="space-y-4 pt-4">
+          {error && (
+            <p className="text-sm text-destructive text-center bg-destructive/10 rounded-md py-2">
+              {error}
+            </p>
+          )}
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" required />
+            <Label htmlFor="email" className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+              Email
+            </Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              required
+              className="bg-background/50 border-border/50 focus-visible:ring-primary/50"
+            />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" name="password" type="password" required />
+            <Label htmlFor="password" className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+              Password
+            </Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              required
+              className="bg-background/50 border-border/50 focus-visible:ring-primary/50"
+            />
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={loading}>
+        <CardFooter className="flex flex-col gap-4 pt-2">
+          <Button
+            type="submit"
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 glow-teal"
+            disabled={loading}
+          >
             {loading ? "Signing in..." : "Sign in"}
           </Button>
           <p className="text-sm text-muted-foreground">

@@ -24,8 +24,8 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <Button asChild>
+        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <Button asChild className="bg-[#14F0C3] text-zinc-950 hover:bg-[#14F0C3]/80 font-medium">
           <Link href="/scans/new">
             <Plus className="mr-1 h-4 w-4" />
             New Scan
@@ -35,26 +35,36 @@ export default async function DashboardPage() {
 
       {completedScans.length > 0 && (
         <div className="grid grid-cols-3 gap-4">
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">Total Scans</p>
-            <p className="text-2xl font-bold">{userScans.length}</p>
+          <div className="rounded-lg border border-[#14F0C3]/15 bg-[#14F0C3]/[0.03] p-5">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Total Scans</p>
+            <p className="text-3xl font-bold font-mono tabular-nums mt-1 text-foreground">{userScans.length}</p>
           </div>
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">Average Score</p>
-            <p className="text-2xl font-bold">{avgScore !== null ? avgScore.toFixed(1) : "-"}</p>
+          <div className="rounded-lg border border-[#14F0C3]/15 bg-[#14F0C3]/[0.03] p-5">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Average Score</p>
+            <p className="text-3xl font-bold font-mono tabular-nums mt-1 text-[#14F0C3]">{avgScore !== null ? avgScore.toFixed(1) : "-"}</p>
           </div>
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">Best Score</p>
-            <p className="text-2xl font-bold">{bestScore !== null ? bestScore.toFixed(1) : "-"}</p>
+          <div className="rounded-lg border border-[#14F0C3]/15 bg-[#14F0C3]/[0.03] p-5">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Best Score</p>
+            <p className="text-3xl font-bold font-mono tabular-nums mt-1 text-[#14F0C3]">{bestScore !== null ? bestScore.toFixed(1) : "-"}</p>
           </div>
         </div>
       )}
 
       {userScans.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#14F0C3]/20 p-16 text-center">
+          {/* Pulsing radar animation */}
+          <div className="relative mb-8">
+            <div className="h-20 w-20 rounded-full border border-[#14F0C3]/20 flex items-center justify-center">
+              <div className="h-12 w-12 rounded-full border border-[#14F0C3]/30 flex items-center justify-center">
+                <div className="h-4 w-4 rounded-full bg-[#14F0C3]/60 animate-pulse" />
+              </div>
+            </div>
+            <div className="absolute inset-0 h-20 w-20 rounded-full border border-[#14F0C3]/10 animate-ping" />
+            <div className="absolute inset-0 h-20 w-20 rounded-full border border-[#14F0C3]/5 animate-ping [animation-delay:500ms]" />
+          </div>
           <h2 className="text-lg font-semibold">No scans yet</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Run your first scan to see how discoverable your site is to AI.</p>
-          <Button asChild className="mt-4">
+          <p className="mt-2 text-sm text-muted-foreground max-w-xs">Run your first scan to see how discoverable your site is to AI models.</p>
+          <Button asChild className="mt-6 bg-[#14F0C3] text-zinc-950 hover:bg-[#14F0C3]/80 font-medium">
             <Link href="/scans/new">
               <Plus className="mr-1 h-4 w-4" />
               Run First Scan
