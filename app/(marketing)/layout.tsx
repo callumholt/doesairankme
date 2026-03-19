@@ -13,6 +13,12 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             </div>
             <span className="font-mono text-sm font-semibold tracking-tight text-foreground">doesairankme</span>
           </Link>
+          <nav className="ml-6 hidden sm:flex items-center gap-5 text-sm">
+            <Link href="/blog" className="text-muted-foreground hover:text-foreground transition-colors">
+              Blog
+            </Link>
+          </nav>
+
           <div className="ml-auto flex items-center gap-3">
             <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground">
               <Link href="/login">Sign in</Link>

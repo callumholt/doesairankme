@@ -1,0 +1,186 @@
+---
+title: "Why AI Doesn't Mention Your Website (And How to Fix It)"
+description: "If ChatGPT, Perplexity, or Gemini never cite your site, here are the most common reasons and exactly how to fix each one."
+date: "2026-03-20"
+author: "Callum"
+tags: ["troubleshooting", "ai-search", "guide"]
+---
+
+You have a great website. You rank reasonably well in Google. But when you ask ChatGPT or Perplexity to recommend the best tool, service, or business in your category — your name never comes up.
+
+This is a common and increasingly costly problem. AI assistants are becoming the default starting point for product discovery, research, and purchasing decisions. If they are not recommending your site, you are invisible to a growing share of your potential customers.
+
+Here is why it happens, and how to fix it.
+
+## The core problem
+
+AI assistants like ChatGPT, Perplexity, and Gemini do not work like Google. They do not rank pages — they synthesise information from sources they have indexed and been trained on, then generate a response. Being cited requires two things: the AI must be able to crawl your site, and it must view your content as credible and relevant.
+
+Most sites fail on at least one of these dimensions, often without realising it.
+
+<Callout type="tip">
+Run your site through an AI visibility test before diagnosing anything. You need a baseline — otherwise you are guessing at what to fix.
+</Callout>
+
+## Reason 1: Your site is blocking AI crawlers
+
+This is the most common and most easily fixed problem.
+
+AI companies send specialised web crawlers to index content. ChatGPT uses GPTBot. Perplexity uses PerplexityBot. Google's AI Overviews uses Googlebot (which you likely allow). If your robots.txt file blocks these bots — intentionally or accidentally — the AI simply cannot read your content and will not cite you.
+
+Research shows that websites blocking GPTBot receive 73% fewer citations from ChatGPT. That is a near-total exclusion from one of the world's most used AI assistants.
+
+**How to diagnose:**
+
+Open your `robots.txt` file (visit `yourdomain.com/robots.txt`) and check for any rules blocking AI crawlers. Look for:
+
+```
+User-agent: GPTBot
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+```
+
+Also check for broad rules like `User-agent: * Disallow: /` which block everything including AI crawlers.
+
+**How to fix:**
+
+Remove any disallow rules for AI crawlers. If you need to restrict certain sections of your site, use path-specific rules:
+
+```
+User-agent: GPTBot
+Disallow: /private/
+Disallow: /admin/
+Allow: /
+```
+
+The key AI crawlers to allow include: `GPTBot`, `PerplexityBot`, `anthropic-ai`, `Claude-Web`, `Applebot-Extended`, and `cohere-ai`.
+
+## Reason 2: You do not have an llms.txt file
+
+`llms.txt` is a relatively new standard that provides AI systems with a structured, human-readable summary of your website. It lives at `yourdomain.com/llms.txt` and helps AI assistants understand what your business does, who it serves, and which pages are most authoritative.
+
+Without it, AI systems have to infer your site's purpose from your content alone — which is often ambiguous, especially for businesses with complex offerings.
+
+**How to diagnose:**
+
+Visit `yourdomain.com/llms.txt` in your browser. If you get a 404 error, you do not have one.
+
+**How to fix:**
+
+Create a plain-text file at `/public/llms.txt` (or your equivalent web root) with a structure like:
+
+```
+# Your Business Name
+
+> Brief description of what you do and who you serve.
+
+## Key pages
+- [Home](https://yourdomain.com/): Overview of our services
+- [About](https://yourdomain.com/about/): Company background and team
+- [Products](https://yourdomain.com/products/): Full product catalogue
+
+## What we do
+[2-3 sentences explaining your business clearly and specifically]
+```
+
+Keep it factual and specific. This file is read by machines, not humans — clarity and precision matter more than marketing language.
+
+## Reason 3: Missing or incorrect schema markup
+
+Schema markup is structured data embedded in your page's HTML that gives AI systems and search engines machine-readable context about your content. Sites using appropriate schema are cited by AI tools 3.2 times more often than those without it.
+
+AI assistants use schema to verify facts and identify authoritative sources. A page with a properly structured `Organisation` schema is easier for an AI to trust than a page with equivalent text but no structure.
+
+**How to diagnose:**
+
+Use Google's Rich Results Test (`search.google.com/test/rich-results`) to check your key pages for schema markup. You can also view page source and search for `application/ld+json` to see any existing schema.
+
+**How to fix:**
+
+Implement JSON-LD schema on your key pages. At minimum, every site should have:
+
+- `Organisation` schema on the homepage (name, url, description, contactPoint)
+- `WebPage` or `WebApplication` schema where relevant
+- `Article` schema on blog posts and editorial content
+- `FAQ` schema if you have a frequently asked questions section
+- `Product` or `Service` schema for what you sell
+
+Add the schema as a `<script type="application/ld+json">` tag in your page's `<head>`.
+
+## Reason 4: Your content is too vague or promotional
+
+AI assistants are trained to cite specific, factual, authoritative content. Vague or promotional writing — "we are the industry leader," "best-in-class solutions," "transformative results" — is exactly the type of content that AI systems learn to discount.
+
+Content that gets cited tends to be:
+
+- Specific (includes actual figures, dates, and named sources)
+- Educational (explains how or why, not just what)
+- Original (offers a perspective or data point not available elsewhere)
+- Structured (uses clear headings, lists, and short paragraphs)
+
+**How to diagnose:**
+
+Read your homepage and key landing pages as if you were a fact-checker. How many specific, verifiable claims does the content make? If the answer is "not many," your content is likely too vague to be cited.
+
+**How to fix:**
+
+Audit your key pages and rewrite vague claims with specific ones. Replace "we help businesses grow" with "our clients see an average 34% increase in qualified leads within the first 90 days." Include data, case studies, and named examples wherever possible.
+
+Also ensure your content clearly answers the questions your potential customers are asking. If someone asks an AI "what is the best [your category] for [your use case]?" does your site contain content that directly addresses that question?
+
+<Callout type="warning">
+Do not invent statistics or misrepresent results. AI systems index and cross-reference information across many sources. Inaccurate claims can damage your credibility with both AI systems and human readers.
+</Callout>
+
+## Reason 5: Low brand authority
+
+AI assistants assess credibility in part by how often a brand is mentioned across authoritative external sources. An Ahrefs study found that brand mentions correlate with AI citation at 0.664 — dramatically higher than backlinks at 0.218.
+
+This means that being written about in industry publications, news sites, and respected blogs has a direct impact on your AI visibility. It also means that link-building tactics which generate low-quality links but no genuine brand mentions have limited value for GEO.
+
+**How to diagnose:**
+
+Search for your brand name in quotation marks across Google. How many results appear? Are they on authoritative, relevant sites — or mostly your own properties, directories, and low-quality aggregators?
+
+**How to fix:**
+
+Invest in genuine brand building:
+
+- Pursue editorial coverage in industry publications and news outlets
+- Contribute bylined articles and guest content to respected sites in your space
+- Participate in podcasts, webinars, and events where your brand gets mentioned
+- Engage with journalists and analysts who cover your industry
+- Publish original research or data that others will cite and link to
+
+Each genuine brand mention on an external site is a signal that AI assistants use to build their understanding of your authority.
+
+## Reason 6: Content that is not being updated
+
+Research shows that 76.4% of ChatGPT's most-cited pages were updated within the previous 30 days. AI systems appear to favour recently updated content, likely because fresh content is more likely to be accurate.
+
+**How to diagnose:**
+
+Check the last-modified dates on your key pages. If your main product or service pages have not been updated in months or years, they may be losing ground to competitors who keep their content fresh.
+
+**How to fix:**
+
+Establish a content maintenance cadence — not just publishing new posts, but actively reviewing and updating your existing key pages. Update statistics, refresh examples, add new sections, and revise any outdated information. Even small updates signal to AI systems that your content is current.
+
+## Putting it all together
+
+Most sites have more than one of these issues. The most effective approach is to:
+
+1. Test your current AI visibility to establish a baseline
+2. Fix crawler access issues immediately (robots.txt)
+3. Add llms.txt and schema markup
+4. Audit and improve your content quality
+5. Build genuine brand authority over time
+6. Re-test regularly and track your progress
+
+<ScanCTA />
+
+AI visibility is not a one-time fix — it is an ongoing discipline. But the businesses that get the fundamentals right now will compound their advantage as AI assistants become the dominant interface for discovery.
+
+The gap between AI-visible and AI-invisible businesses is widening. The best time to act was six months ago. The second best time is now.
