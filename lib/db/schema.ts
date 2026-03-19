@@ -80,6 +80,7 @@ export const scans = pgTable("scans", {
   appearanceRate: real("appearance_rate"),
   avgPosition: real("avg_position"),
   contentSource: text("content_source"),
+  totalTokens: integer("total_tokens"),
   error: text("error"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   completedAt: timestamp("completed_at"),
@@ -95,6 +96,9 @@ export const scanResults = pgTable("scan_results", {
   sources: jsonb("sources").$type<Array<{ url: string; title: string }>>(),
   searchQueries: jsonb("search_queries").$type<string[]>(),
   responseSnippet: text("response_snippet"),
+  inputTokens: integer("input_tokens"),
+  outputTokens: integer("output_tokens"),
+  totalTokens: integer("total_tokens"),
   error: text("error"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })

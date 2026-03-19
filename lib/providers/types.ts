@@ -4,8 +4,15 @@ export interface ScanProvider {
   search(query: string): Promise<SearchResult>
 }
 
+export interface TokenUsage {
+  inputTokens: number
+  outputTokens: number
+  totalTokens: number
+}
+
 export interface SearchResult {
   response: string
   sources: Array<{ url: string; title: string }>
   searchQueries: string[]
+  tokenUsage: TokenUsage | null
 }

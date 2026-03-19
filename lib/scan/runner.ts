@@ -30,6 +30,7 @@ export async function runScan(scanId: string) {
     await db.update(scans).set({ status: "searching" }).where(eq(scans.id, scanId))
 
     const results: Array<{ position: number | null; query: string }> = []
+    let scanTotalTokens = 0
 
     for (let i = 0; i < queries.length; i++) {
       const query = queries[i]
@@ -51,6 +52,10 @@ export async function runScan(scanId: string) {
           }
         }
 
+        if (result.tokenUsage) {
+          scanTotalTokens += result.tokenUsage.totalTokens
+        }
+
         await db.insert(scanResults).values({
           id: nanoid(),
           scanId,
@@ -59,6 +64,9 @@ export async function runScan(scanId: string) {
           sources: result.sources,
           searchQueries: result.searchQueries,
           responseSnippet: result.response.slice(0, 500),
+          inputTokens: result.tokenUsage?.inputTokens ?? null,
+          outputTokens: result.tokenUsage?.outputTokens ?? null,
+          totalTokens: result.tokenUsage?.totalTokens ?? null,
         })
 
         results.push({ position, query })
@@ -92,6 +100,7 @@ export async function runScan(scanId: string) {
         score: scoring.score,
         appearanceRate: scoring.appearanceRate,
         avgPosition: scoring.avgPosition,
+        totalTokens: scanTotalTokens,
         completedAt: new Date(),
       })
       .where(eq(scans.id, scanId))

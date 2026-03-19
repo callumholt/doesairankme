@@ -76,10 +76,22 @@ ${content}`,
       const searchQueries: string[] = metadata?.webSearchQueries || []
       const resolvedSources = await resolveSourceUrls(sources)
 
+      // Extract token usage
+      // biome-ignore lint/suspicious/noExplicitAny: Gemini SDK types are incomplete
+      const usageMetadata = (response as any).usageMetadata
+      const tokenUsage = usageMetadata
+        ? {
+            inputTokens: usageMetadata.promptTokenCount || 0,
+            outputTokens: usageMetadata.candidatesTokenCount || 0,
+            totalTokens: usageMetadata.totalTokenCount || 0,
+          }
+        : null
+
       return {
         response: response.text || "",
         sources: resolvedSources,
         searchQueries,
+        tokenUsage,
       }
     },
   }
