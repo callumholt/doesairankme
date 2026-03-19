@@ -6,6 +6,28 @@ import { getProvider } from "@/lib/providers"
 import { calculateScore } from "./scoring"
 import { scrapeContent } from "./scraper"
 
+/**
+ * Extracts the sentence or paragraph from a response text that contains a
+ * reference to the target domain. Returns null if the domain is not mentioned.
+ */
+function extractCitedSnippet(responseText: string, targetDomain: string): string | null {
+  if (!responseText) return null
+
+  // Split on sentence boundaries (. ! ?) or paragraph breaks
+  const segments = responseText.split(/(?<=[.!?])\s+|\n{2,}/)
+
+  for (const segment of segments) {
+    const lower = segment.toLowerCase()
+    if (lower.includes(targetDomain.toLowerCase())) {
+      const trimmed = segment.trim()
+      // Cap at 500 chars to keep the snippet focused
+      return trimmed.length > 500 ? `${trimmed.slice(0, 497)}...` : trimmed
+    }
+  }
+
+  return null
+}
+
 export async function runScan(scanId: string) {
   const db = getDb()
 
@@ -56,6 +78,9 @@ export async function runScan(scanId: string) {
           scanTotalTokens += result.tokenUsage.totalTokens
         }
 
+        // Extract the sentence/paragraph containing the domain mention
+        const citedSnippet = extractCitedSnippet(result.response, targetDomain)
+
         await db.insert(scanResults).values({
           id: nanoid(),
           scanId,
@@ -64,6 +89,8 @@ export async function runScan(scanId: string) {
           sources: result.sources,
           searchQueries: result.searchQueries,
           responseSnippet: result.response.slice(0, 500),
+          responseText: result.response,
+          citedSnippet,
           inputTokens: result.tokenUsage?.inputTokens ?? null,
           outputTokens: result.tokenUsage?.outputTokens ?? null,
           totalTokens: result.tokenUsage?.totalTokens ?? null,

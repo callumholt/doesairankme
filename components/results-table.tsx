@@ -28,18 +28,75 @@ function SourcesList({ sources, domain }: { sources: Array<{ url: string; title:
   )
 }
 
+function FullResponsePanel({
+  result,
+  domain,
+}: {
+  result: ScanResult
+  domain: string
+}) {
+  const [showFullResponse, setShowFullResponse] = useState(false)
+  const hasCitedSnippet = Boolean(result.citedSnippet)
+  const hasResponseText = Boolean(result.responseText)
+
+  return (
+    <div className="space-y-3">
+      {result.sources && result.sources.length > 0 && (
+        <SourcesList sources={result.sources} domain={domain} />
+      )}
+
+      {hasCitedSnippet && (
+        <div className="mt-3">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">Cited snippet</p>
+          <blockquote className="border-l-2 border-[#14F0C3]/50 pl-3 text-sm text-muted-foreground italic">
+            {result.citedSnippet}
+          </blockquote>
+        </div>
+      )}
+
+      {hasResponseText && (
+        <div className="mt-3">
+          <button
+            type="button"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+            onClick={() => setShowFullResponse((v) => !v)}
+          >
+            {showFullResponse ? (
+              <ChevronDown className="h-3 w-3" />
+            ) : (
+              <ChevronRight className="h-3 w-3" />
+            )}
+            {showFullResponse ? "Hide full AI response" : "Show full AI response"}
+          </button>
+          {showFullResponse && (
+            <div className="mt-2 rounded-md border border-border/40 bg-muted/30 p-3 text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed max-h-96 overflow-y-auto">
+              {result.responseText}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function ResultRow({ result, domain }: { result: ScanResult; domain: string }) {
   const [expanded, setExpanded] = useState(false)
   const found = result.position !== null
+  const hasExpandedContent =
+    (result.sources && result.sources.length > 0) ||
+    Boolean(result.citedSnippet) ||
+    Boolean(result.responseText)
 
   return (
     <>
       <TableRow
-        className={`cursor-pointer transition-colors ${found ? "hover:bg-[#14F0C3]/[0.03]" : "hover:bg-muted/30"}`}
-        onClick={() => setExpanded(!expanded)}
+        className={`transition-colors ${hasExpandedContent ? "cursor-pointer" : ""} ${found ? "hover:bg-[#14F0C3]/[0.03]" : "hover:bg-muted/30"}`}
+        onClick={() => hasExpandedContent && setExpanded(!expanded)}
       >
         <TableCell className="w-8 text-muted-foreground/40">
-          {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          {hasExpandedContent ? (
+            expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
+          ) : null}
         </TableCell>
         <TableCell className="text-sm">{result.query}</TableCell>
         <TableCell className="text-center">
@@ -57,11 +114,11 @@ function ResultRow({ result, domain }: { result: ScanResult; domain: string }) {
         </TableCell>
         <TableCell className="text-center font-mono text-sm tabular-nums text-muted-foreground">{result.sources?.length || 0}</TableCell>
       </TableRow>
-      {expanded && result.sources && result.sources.length > 0 && (
+      {expanded && (
         <TableRow className="bg-muted/20">
           <TableCell />
           <TableCell colSpan={3}>
-            <SourcesList sources={result.sources} domain={domain} />
+            <FullResponsePanel result={result} domain={domain} />
           </TableCell>
         </TableRow>
       )}

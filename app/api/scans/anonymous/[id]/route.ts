@@ -40,6 +40,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       sources: [],
       searchQueries: [],
       responseSnippet: null,
+      responseText: null,
+      citedSnippet: null,
       inputTokens: null,
       outputTokens: null,
       totalTokens: null,
