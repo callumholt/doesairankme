@@ -1,10 +1,37 @@
 "use client"
 
-import { CheckCircle2, ChevronDown, ChevronRight, XCircle } from "lucide-react"
+import { AlertTriangle, CheckCircle2, ChevronDown, ChevronRight, XCircle } from "lucide-react"
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import type { ScanResult } from "@/lib/db/schema"
+
+function SentimentBadge({ sentiment }: { sentiment: ScanResult["sentiment"] }) {
+  if (!sentiment || sentiment === "not_mentioned") return null
+
+  if (sentiment === "positive") {
+    return (
+      <Badge variant="secondary" className="text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+        Positive
+      </Badge>
+    )
+  }
+
+  if (sentiment === "negative") {
+    return (
+      <Badge variant="secondary" className="text-xs bg-red-500/15 text-red-400 border border-red-500/20">
+        Negative
+      </Badge>
+    )
+  }
+
+  // neutral
+  return (
+    <Badge variant="secondary" className="text-xs bg-muted text-muted-foreground border border-border">
+      Neutral
+    </Badge>
+  )
+}
 
 function SourcesList({ sources, domain }: { sources: Array<{ url: string; title: string }>; domain: string }) {
   return (
@@ -12,6 +39,7 @@ function SourcesList({ sources, domain }: { sources: Array<{ url: string; title:
       {sources.slice(0, 5).map((source, i) => {
         const isTarget = source.url.includes(domain)
         return (
+          // biome-ignore lint/suspicious/noArrayIndexKey: sources can have duplicate URLs; index keeps keys stable
           <li key={`${source.url}-${i}`} className={isTarget ? "font-medium text-foreground" : ""}>
             <span className="font-mono text-xs text-muted-foreground/50 mr-2">{i + 1}.</span>
             {source.title || source.url}
@@ -33,6 +61,32 @@ function SourcesList({ sources, domain }: { sources: Array<{ url: string; title:
   )
 }
 
+function SentimentPanel({ result }: { result: ScanResult }) {
+  if (!result.sentiment || result.sentiment === "not_mentioned") return null
+
+  return (
+    <div className="mt-3 space-y-2">
+      <p className="text-xs uppercase tracking-wider text-muted-foreground">Sentiment Analysis</p>
+      {result.sentimentSummary && <p className="text-sm text-muted-foreground">{result.sentimentSummary}</p>}
+      {result.sentimentConcerns && result.sentimentConcerns.length > 0 && (
+        <div className="mt-2">
+          <div className="flex items-center gap-1.5 text-xs text-amber-400 mb-1.5">
+            <AlertTriangle className="h-3 w-3" />
+            <span className="uppercase tracking-wider">Concerns</span>
+          </div>
+          <ul className="space-y-1">
+            {result.sentimentConcerns.map((concern) => (
+              <li key={concern} className="text-xs text-muted-foreground border-l-2 border-amber-500/30 pl-2">
+                {concern}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function FullResponsePanel({ result, domain }: { result: ScanResult; domain: string }) {
   const [showFullResponse, setShowFullResponse] = useState(false)
   const hasCitedSnippet = Boolean(result.citedSnippet)
@@ -50,6 +104,8 @@ function FullResponsePanel({ result, domain }: { result: ScanResult; domain: str
           </blockquote>
         </div>
       )}
+
+      <SentimentPanel result={result} />
 
       {hasResponseText && (
         <div className="mt-3">
@@ -93,7 +149,12 @@ function ResultRow({ result, domain }: { result: ScanResult; domain: string }) {
             )
           ) : null}
         </TableCell>
-        <TableCell className="text-sm">{result.query}</TableCell>
+        <TableCell className="text-sm">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span>{result.query}</span>
+            <SentimentBadge sentiment={result.sentiment} />
+          </div>
+        </TableCell>
         <TableCell className="text-center">
           {found ? (
             <span className="inline-flex items-center gap-1.5 text-[#14F0C3]">

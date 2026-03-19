@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm"
-import { integer, jsonb, pgTable, primaryKey, real, text, timestamp } from "drizzle-orm/pg-core"
+import { boolean, integer, jsonb, pgTable, primaryKey, real, text, timestamp } from "drizzle-orm/pg-core"
 
 // ============================================================================
 // AUTH TABLES (NextAuth.js v5)
@@ -88,6 +88,8 @@ export const scans = pgTable("scans", {
   contentSource: text("content_source"),
   totalTokens: integer("total_tokens"),
   error: text("error"),
+  isPublic: boolean("is_public").notNull().default(false),
+  publicSlug: text("public_slug").unique(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   completedAt: timestamp("completed_at"),
 })
@@ -108,6 +110,10 @@ export const scanResults = pgTable("scan_results", {
   outputTokens: integer("output_tokens"),
   totalTokens: integer("total_tokens"),
   error: text("error"),
+  sentiment: text("sentiment").$type<"positive" | "neutral" | "negative" | "not_mentioned">(),
+  sentimentConfidence: real("sentiment_confidence"),
+  sentimentSummary: text("sentiment_summary"),
+  sentimentConcerns: jsonb("sentiment_concerns").$type<string[]>(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 

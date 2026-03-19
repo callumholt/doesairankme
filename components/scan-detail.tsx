@@ -8,6 +8,7 @@ import { SiteHealthTab } from "@/components/site-health-tab"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useScanPolling } from "@/hooks/use-scan-polling"
+import type { ScanResult } from "@/lib/db/schema"
 
 function HeroScore({ score }: { score: number | null }) {
   if (score === null) return null
@@ -32,6 +33,62 @@ function HeroScore({ score }: { score: number | null }) {
       <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">AI Discoverability Score</p>
       <span className={`font-mono text-7xl font-bold tabular-nums ${textColour}`}>{score}</span>
       <p className="text-xs text-muted-foreground mt-3 font-mono">/ 100</p>
+    </div>
+  )
+}
+
+type OverallSentiment = "Mostly Positive" | "Mixed" | "Mostly Negative" | "Not Mentioned"
+
+function calculateOverallSentiment(results: ScanResult[]): OverallSentiment {
+  const mentionedResults = results.filter((r) => r.sentiment && r.sentiment !== "not_mentioned")
+
+  if (mentionedResults.length === 0) return "Not Mentioned"
+
+  const counts = { positive: 0, neutral: 0, negative: 0 }
+  for (const r of mentionedResults) {
+    if (r.sentiment === "positive") counts.positive++
+    else if (r.sentiment === "negative") counts.negative++
+    else counts.neutral++
+  }
+
+  const total = mentionedResults.length
+  const positiveRatio = counts.positive / total
+  const negativeRatio = counts.negative / total
+
+  if (positiveRatio >= 0.6) return "Mostly Positive"
+  if (negativeRatio >= 0.4) return "Mostly Negative"
+  return "Mixed"
+}
+
+function OverallSentimentCard({ results }: { results: ScanResult[] }) {
+  // Only show if at least some results have sentiment data
+  const hasSentimentData = results.some((r) => r.sentiment !== null && r.sentiment !== undefined)
+  if (!hasSentimentData) return null
+
+  const overallSentiment = calculateOverallSentiment(results)
+
+  const textColour =
+    overallSentiment === "Mostly Positive"
+      ? "text-emerald-400"
+      : overallSentiment === "Mostly Negative"
+        ? "text-red-400"
+        : overallSentiment === "Mixed"
+          ? "text-amber-400"
+          : "text-muted-foreground"
+
+  const borderColour =
+    overallSentiment === "Mostly Positive"
+      ? "border-emerald-500/20 bg-emerald-500/[0.02]"
+      : overallSentiment === "Mostly Negative"
+        ? "border-red-500/20 bg-red-500/[0.02]"
+        : overallSentiment === "Mixed"
+          ? "border-amber-500/20 bg-amber-500/[0.02]"
+          : "border-muted-foreground/10 bg-muted/[0.02]"
+
+  return (
+    <div className={`rounded-lg border ${borderColour} p-4 text-center`}>
+      <p className="text-xs uppercase tracking-wider text-muted-foreground">Overall Sentiment</p>
+      <p className={`text-2xl font-bold font-mono mt-1 ${textColour}`}>{overallSentiment}</p>
     </div>
   )
 }
@@ -141,6 +198,9 @@ export function ScanDetail() {
               </p>
             </div>
           </div>
+
+          {/* Overall sentiment card — spans full width below stats */}
+          <OverallSentimentCard results={scan.results} />
 
           {/* Results table */}
           <Card className="border-[#14F0C3]/10">

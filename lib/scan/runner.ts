@@ -6,6 +6,7 @@ import { scanResults, scans, siteAudits } from "@/lib/db/schema"
 import { getProvider } from "@/lib/providers"
 import { calculateScore } from "./scoring"
 import { scrapeContent } from "./scraper"
+import { analyseSentiment } from "./sentiment"
 
 /**
  * Extracts the sentence or paragraph from a response text that contains a
@@ -58,6 +59,9 @@ export async function runScan(scanId: string) {
     const results: Array<{ position: number | null; query: string }> = []
     let scanTotalTokens = 0
 
+    // Track pending sentiment analysis tasks to run in the background
+    const sentimentTasks: Array<Promise<void>> = []
+
     for (let i = 0; i < queries.length; i++) {
       const query = queries[i]
 
@@ -85,8 +89,10 @@ export async function runScan(scanId: string) {
         // Extract the sentence/paragraph containing the domain mention
         const citedSnippet = extractCitedSnippet(result.response, targetDomain)
 
+        const resultId = nanoid()
+
         await db.insert(scanResults).values({
-          id: nanoid(),
+          id: resultId,
           scanId,
           query,
           position,
@@ -100,6 +106,34 @@ export async function runScan(scanId: string) {
           totalTokens: result.tokenUsage?.totalTokens ?? null,
         })
 
+        // Run sentiment analysis in the background (parallel with next query)
+        // If domain was not found, skip API call and set not_mentioned directly
+        const sentimentTask = (async () => {
+          try {
+            const sentimentResult =
+              position === null
+                ? {
+                    sentiment: "not_mentioned" as const,
+                    confidence: 1,
+                    summary: "",
+                    concerns: [] as string[],
+                  }
+                : await analyseSentiment(result.response, targetDomain)
+            await db
+              .update(scanResults)
+              .set({
+                sentiment: sentimentResult.sentiment,
+                sentimentConfidence: sentimentResult.confidence,
+                sentimentSummary: sentimentResult.summary || null,
+                sentimentConcerns: sentimentResult.concerns.length > 0 ? sentimentResult.concerns : null,
+              })
+              .where(eq(scanResults.id, resultId))
+          } catch {
+            // Sentiment failures must never break a scan
+          }
+        })()
+
+        sentimentTasks.push(sentimentTask)
         results.push({ position, query })
       } catch (err) {
         await db.insert(scanResults).values({
@@ -110,6 +144,8 @@ export async function runScan(scanId: string) {
           sources: [],
           searchQueries: [],
           error: err instanceof Error ? err.message : String(err),
+          sentiment: "not_mentioned",
+          sentimentConfidence: 1,
         })
 
         results.push({ position: null, query })
@@ -120,6 +156,9 @@ export async function runScan(scanId: string) {
         await new Promise((r) => setTimeout(r, 2000))
       }
     }
+
+    // Wait for any remaining sentiment tasks to complete before finalising
+    await Promise.allSettled(sentimentTasks)
 
     // Step 4: Calculate score and persist audit
     const scoring = calculateScore(results)

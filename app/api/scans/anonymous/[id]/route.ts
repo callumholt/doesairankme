@@ -46,6 +46,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       outputTokens: null,
       totalTokens: null,
       error: null,
+      sentiment: null,
+      sentimentConfidence: null,
+      sentimentSummary: null,
+      sentimentConcerns: null,
       createdAt: result.createdAt,
       gated: true,
     }
