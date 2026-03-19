@@ -1,6 +1,6 @@
 "use client"
 
-import { CheckCircle2, XCircle, ChevronDown, ChevronRight } from "lucide-react"
+import { CheckCircle2, ChevronDown, ChevronRight, XCircle } from "lucide-react"
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -16,34 +16,31 @@ function SourcesList({ sources, domain }: { sources: Array<{ url: string; title:
             <span className="font-mono text-xs text-muted-foreground/50 mr-2">{i + 1}.</span>
             {source.title || source.url}
             {isTarget && (
-              <Badge variant="secondary" className="ml-2 text-xs bg-[#14F0C3]/15 text-[#14F0C3] border border-[#14F0C3]/20">
+              <Badge
+                variant="secondary"
+                className="ml-2 text-xs bg-[#14F0C3]/15 text-[#14F0C3] border border-[#14F0C3]/20"
+              >
                 Your site
               </Badge>
             )}
           </li>
         )
       })}
-      {sources.length > 5 && <li className="text-muted-foreground/50 font-mono text-xs">...and {sources.length - 5} more</li>}
+      {sources.length > 5 && (
+        <li className="text-muted-foreground/50 font-mono text-xs">...and {sources.length - 5} more</li>
+      )}
     </ul>
   )
 }
 
-function FullResponsePanel({
-  result,
-  domain,
-}: {
-  result: ScanResult
-  domain: string
-}) {
+function FullResponsePanel({ result, domain }: { result: ScanResult; domain: string }) {
   const [showFullResponse, setShowFullResponse] = useState(false)
   const hasCitedSnippet = Boolean(result.citedSnippet)
   const hasResponseText = Boolean(result.responseText)
 
   return (
     <div className="space-y-3">
-      {result.sources && result.sources.length > 0 && (
-        <SourcesList sources={result.sources} domain={domain} />
-      )}
+      {result.sources && result.sources.length > 0 && <SourcesList sources={result.sources} domain={domain} />}
 
       {hasCitedSnippet && (
         <div className="mt-3">
@@ -61,11 +58,7 @@ function FullResponsePanel({
             className="flex items-center gap-1.5 text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
             onClick={() => setShowFullResponse((v) => !v)}
           >
-            {showFullResponse ? (
-              <ChevronDown className="h-3 w-3" />
-            ) : (
-              <ChevronRight className="h-3 w-3" />
-            )}
+            {showFullResponse ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
             {showFullResponse ? "Hide full AI response" : "Show full AI response"}
           </button>
           {showFullResponse && (
@@ -83,9 +76,7 @@ function ResultRow({ result, domain }: { result: ScanResult; domain: string }) {
   const [expanded, setExpanded] = useState(false)
   const found = result.position !== null
   const hasExpandedContent =
-    (result.sources && result.sources.length > 0) ||
-    Boolean(result.citedSnippet) ||
-    Boolean(result.responseText)
+    (result.sources && result.sources.length > 0) || Boolean(result.citedSnippet) || Boolean(result.responseText)
 
   return (
     <>
@@ -95,7 +86,11 @@ function ResultRow({ result, domain }: { result: ScanResult; domain: string }) {
       >
         <TableCell className="w-8 text-muted-foreground/40">
           {hasExpandedContent ? (
-            expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
+            expanded ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )
           ) : null}
         </TableCell>
         <TableCell className="text-sm">{result.query}</TableCell>
@@ -112,7 +107,9 @@ function ResultRow({ result, domain }: { result: ScanResult; domain: string }) {
             </span>
           )}
         </TableCell>
-        <TableCell className="text-center font-mono text-sm tabular-nums text-muted-foreground">{result.sources?.length || 0}</TableCell>
+        <TableCell className="text-center font-mono text-sm tabular-nums text-muted-foreground">
+          {result.sources?.length || 0}
+        </TableCell>
       </TableRow>
       {expanded && (
         <TableRow className="bg-muted/20">

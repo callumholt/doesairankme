@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth/config"
 import { getDb } from "@/lib/db/client"

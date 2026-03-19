@@ -1,9 +1,9 @@
 "use client"
 
+import { Check, Lock, Zap } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { Lock, Zap, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -27,7 +27,9 @@ export default function NewScanPage() {
   const [selectedProviders, setSelectedProviders] = useState<string[]>(["gemini"])
 
   useEffect(() => {
-    fetch("/api/user/plan").then((r) => r.json()).then((d) => setPlan(d.plan || "free"))
+    fetch("/api/user/plan")
+      .then((r) => r.json())
+      .then((d) => setPlan(d.plan || "free"))
   }, [])
 
   const isPro = plan === "pro"
@@ -60,9 +62,10 @@ export default function NewScanPage() {
       url = `https://${url}`
     }
 
-    const body = isPro && selectedProviders.length > 1
-      ? { url, providers: selectedProviders, queryCount }
-      : { url, provider: isPro ? selectedProviders[0] : (formData.get("provider") as string || "gemini"), queryCount }
+    const body =
+      isPro && selectedProviders.length > 1
+        ? { url, providers: selectedProviders, queryCount }
+        : { url, provider: isPro ? selectedProviders[0] : (formData.get("provider") as string) || "gemini", queryCount }
 
     try {
       const res = await fetch("/api/scans", {
@@ -97,17 +100,11 @@ export default function NewScanPage() {
       <Card className="border-border/50 bg-card/80">
         <CardHeader>
           <CardTitle className="text-xl font-semibold tracking-tight">New Scan</CardTitle>
-          <CardDescription>
-            Enter a URL to test how discoverable it is to AI assistants.
-          </CardDescription>
+          <CardDescription>Enter a URL to test how discoverable it is to AI assistants.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-5">
-            {error && (
-              <p className="text-sm text-destructive bg-destructive/10 rounded-md py-2 px-3">
-                {error}
-              </p>
-            )}
+            {error && <p className="text-sm text-destructive bg-destructive/10 rounded-md py-2 px-3">{error}</p>}
 
             <div className="space-y-2">
               <Label htmlFor="url" className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
@@ -178,7 +175,11 @@ export default function NewScanPage() {
                       {PRO_PROVIDERS.map((p) => (
                         <SelectItem key={p} value={p} disabled>
                           <span className="flex items-center gap-2">
-                            {p === "openai" ? "OpenAI" : p === "perplexity-sonar" ? "Perplexity Sonar" : "Perplexity Sonar Pro"}
+                            {p === "openai"
+                              ? "OpenAI"
+                              : p === "perplexity-sonar"
+                                ? "Perplexity Sonar"
+                                : "Perplexity Sonar Pro"}
                             <Lock className="h-3 w-3 text-muted-foreground/40" />
                           </span>
                         </SelectItem>
@@ -215,8 +216,7 @@ export default function NewScanPage() {
 
             {!isPro && (
               <div className="rounded-md border border-primary/15 bg-primary/[0.04] p-3 text-xs text-muted-foreground">
-                <span className="font-mono text-primary font-medium">Free plan:</span>{" "}
-                3 scans per month.{" "}
+                <span className="font-mono text-primary font-medium">Free plan:</span> 3 scans per month.{" "}
                 <Link href="/billing" className="text-primary underline underline-offset-2">
                   Upgrade for unlimited.
                 </Link>
@@ -225,8 +225,10 @@ export default function NewScanPage() {
 
             {isPro && selectedProviders.length > 1 && (
               <div className="rounded-md border border-primary/15 bg-primary/[0.04] p-3 text-xs text-muted-foreground">
-                <span className="font-mono text-primary font-medium">{selectedProviders.length} providers selected</span>
-                {" "}&mdash; this will create {selectedProviders.length} parallel scans, one per provider.
+                <span className="font-mono text-primary font-medium">
+                  {selectedProviders.length} providers selected
+                </span>{" "}
+                &mdash; this will create {selectedProviders.length} parallel scans, one per provider.
               </div>
             )}
           </CardContent>

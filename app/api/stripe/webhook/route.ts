@@ -7,7 +7,12 @@ import { getStripe } from "@/lib/stripe/client"
 
 async function updateUserPlan(
   customerId: string,
-  data: { plan?: string; stripeSubscriptionId?: string | null; stripePriceId?: string | null; planExpiresAt?: Date | null },
+  data: {
+    plan?: string
+    stripeSubscriptionId?: string | null
+    stripePriceId?: string | null
+    planExpiresAt?: Date | null
+  },
 ) {
   const db = getDb()
   await db
@@ -54,7 +59,7 @@ export async function POST(request: Request) {
       const session = event.data.object as Stripe.Checkout.Session
       const customerId = session.customer as string
       const subscriptionId = session.subscription as string
-      const sub = await stripe.subscriptions.retrieve(subscriptionId) as unknown as Stripe.Subscription
+      const sub = (await stripe.subscriptions.retrieve(subscriptionId)) as unknown as Stripe.Subscription
 
       await updateUserPlan(customerId, {
         plan: "pro",

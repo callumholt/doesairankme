@@ -1,5 +1,5 @@
-import Link from "next/link"
 import { Search } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
@@ -11,9 +11,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             <div className="flex h-8 w-8 items-center justify-center rounded-md border border-primary/30 bg-primary/10 transition-colors group-hover:border-primary/60 group-hover:bg-primary/20">
               <Search className="h-4 w-4 text-primary" />
             </div>
-            <span className="font-mono text-sm font-semibold tracking-tight text-foreground">
-              doesairankme
-            </span>
+            <span className="font-mono text-sm font-semibold tracking-tight text-foreground">doesairankme</span>
           </Link>
           <div className="ml-auto flex items-center gap-3">
             <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground">

@@ -1,11 +1,13 @@
 "use client"
 
-import { useParams } from "next/navigation"
 import { AlertCircle } from "lucide-react"
-import { useScanPolling } from "@/hooks/use-scan-polling"
-import { ScanProgress } from "@/components/scan-progress"
+import { useParams } from "next/navigation"
 import { ResultsTable } from "@/components/results-table"
+import { ScanProgress } from "@/components/scan-progress"
+import { SiteHealthTab } from "@/components/site-health-tab"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useScanPolling } from "@/hooks/use-scan-polling"
 
 function HeroScore({ score }: { score: number | null }) {
   if (score === null) return null
@@ -19,20 +21,14 @@ function HeroScore({ score }: { score: number | null }) {
       ? "shadow-[0_0_60px_-10px_rgba(245,158,11,0.35)]"
       : "shadow-[0_0_60px_-10px_rgba(20,240,195,0.35)]"
 
-  const textColour = isLow
-    ? "text-red-400"
-    : isMid
-      ? "text-amber-400"
-      : "text-[#14F0C3]"
+  const textColour = isLow ? "text-red-400" : isMid ? "text-amber-400" : "text-[#14F0C3]"
 
-  const borderColour = isLow
-    ? "border-red-500/20"
-    : isMid
-      ? "border-amber-500/20"
-      : "border-[#14F0C3]/20"
+  const borderColour = isLow ? "border-red-500/20" : isMid ? "border-amber-500/20" : "border-[#14F0C3]/20"
 
   return (
-    <div className={`flex flex-col items-center justify-center rounded-xl border ${borderColour} bg-card p-8 ${glowColour}`}>
+    <div
+      className={`flex flex-col items-center justify-center rounded-xl border ${borderColour} bg-card p-8 ${glowColour}`}
+    >
       <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">AI Discoverability Score</p>
       <span className={`font-mono text-7xl font-bold tabular-nums ${textColour}`}>{score}</span>
       <p className="text-xs text-muted-foreground mt-3 font-mono">/ 100</p>
@@ -112,62 +108,75 @@ export function ScanDetail() {
         </p>
       </div>
 
-      {/* Hero score */}
-      <HeroScore score={scan.score} />
+      <Tabs defaultValue="results">
+        <TabsList>
+          <TabsTrigger value="results">AI Visibility</TabsTrigger>
+          <TabsTrigger value="health">Site Health</TabsTrigger>
+        </TabsList>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Appearance Rate</p>
-          <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
-            {scan.appearanceRate !== null ? `${Math.round(scan.appearanceRate * 100)}%` : "-"}
-          </p>
-        </div>
-        <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Avg Position</p>
-          <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
-            {scan.avgPosition !== null ? scan.avgPosition.toFixed(1) : "-"}
-          </p>
-        </div>
-        <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Found / Total</p>
-          <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
-            <span className="text-[#14F0C3]">{found.length}</span>
-            <span className="text-muted-foreground mx-1">/</span>
-            {scan.results.length}
-          </p>
-        </div>
-      </div>
+        <TabsContent value="results" className="space-y-8 mt-6">
+          {/* Hero score */}
+          <HeroScore score={scan.score} />
 
-      {/* Results table */}
-      <Card className="border-[#14F0C3]/10">
-        <CardHeader>
-          <CardTitle>Query Results</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResultsTable results={scan.results} domain={scan.domain} />
-        </CardContent>
-      </Card>
+          {/* Stats row */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Appearance Rate</p>
+              <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
+                {scan.appearanceRate !== null ? `${Math.round(scan.appearanceRate * 100)}%` : "-"}
+              </p>
+            </div>
+            <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Avg Position</p>
+              <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
+                {scan.avgPosition !== null ? scan.avgPosition.toFixed(1) : "-"}
+              </p>
+            </div>
+            <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Found / Total</p>
+              <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
+                <span className="text-[#14F0C3]">{found.length}</span>
+                <span className="text-muted-foreground mx-1">/</span>
+                {scan.results.length}
+              </p>
+            </div>
+          </div>
 
-      {/* Missed queries */}
-      {missed.length > 0 && (
-        <Card className="border-muted-foreground/10">
-          <CardHeader>
-            <CardTitle className="text-muted-foreground">
-              Missed Queries <span className="font-mono text-sm">({missed.length})</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2 text-sm">
-              {missed.map((r) => (
-                <li key={r.id} className="text-muted-foreground/70 border-l-2 border-red-500/20 pl-3">
-                  {r.query}
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
+          {/* Results table */}
+          <Card className="border-[#14F0C3]/10">
+            <CardHeader>
+              <CardTitle>Query Results</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResultsTable results={scan.results} domain={scan.domain} />
+            </CardContent>
+          </Card>
+
+          {/* Missed queries */}
+          {missed.length > 0 && (
+            <Card className="border-muted-foreground/10">
+              <CardHeader>
+                <CardTitle className="text-muted-foreground">
+                  Missed Queries <span className="font-mono text-sm">({missed.length})</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm">
+                  {missed.map((r) => (
+                    <li key={r.id} className="text-muted-foreground/70 border-l-2 border-red-500/20 pl-3">
+                      {r.query}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="health" className="mt-6">
+          <SiteHealthTab scanId={id} scanComplete={scan.status === "complete"} />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

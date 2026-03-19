@@ -13,19 +13,37 @@ const steps = [
 
 const stepOrder = ["pending", "scraping", "generating", "searching", "complete"]
 
-export function ScanProgress({ status, resultCount, queryCount }: { status: string; resultCount: number; queryCount: number }) {
+export function ScanProgress({
+  status,
+  resultCount,
+  queryCount,
+}: {
+  status: string
+  resultCount: number
+  queryCount: number
+}) {
   const currentIndex = stepOrder.indexOf(status)
-  const progressPercent = status === "complete" ? 100 : status === "searching" ? 20 + (resultCount / queryCount) * 60 : (currentIndex / (stepOrder.length - 1)) * 20
+  const progressPercent =
+    status === "complete"
+      ? 100
+      : status === "searching"
+        ? 20 + (resultCount / queryCount) * 60
+        : (currentIndex / (stepOrder.length - 1)) * 20
 
   return (
     <div className="space-y-6">
       {/* Teal progress bar with glow */}
       <div className="relative">
-        <Progress value={progressPercent} className="h-2 [&>div]:bg-[#14F0C3] [&>div]:shadow-[0_0_10px_rgba(20,240,195,0.5)]" />
+        <Progress
+          value={progressPercent}
+          className="h-2 [&>div]:bg-[#14F0C3] [&>div]:shadow-[0_0_10px_rgba(20,240,195,0.5)]"
+        />
         <div className="flex justify-between mt-2">
           <span className="font-mono text-xs text-muted-foreground">{Math.round(progressPercent)}%</span>
           {status === "searching" && queryCount > 0 && (
-            <span className="font-mono text-xs text-[#14F0C3]">{resultCount}/{queryCount} queries</span>
+            <span className="font-mono text-xs text-[#14F0C3]">
+              {resultCount}/{queryCount} queries
+            </span>
           )}
         </div>
       </div>
@@ -53,13 +71,15 @@ export function ScanProgress({ status, resultCount, queryCount }: { status: stri
               ) : (
                 <Circle className="h-4 w-4 text-muted-foreground/20" />
               )}
-              <span className={
-                isDone
-                  ? "text-muted-foreground"
-                  : isCurrent
-                    ? "text-[#14F0C3] font-medium"
-                    : "text-muted-foreground/40"
-              }>
+              <span
+                className={
+                  isDone
+                    ? "text-muted-foreground"
+                    : isCurrent
+                      ? "text-[#14F0C3] font-medium"
+                      : "text-muted-foreground/40"
+                }
+              >
                 {isCurrent ? <span className="font-mono">{label}</span> : label}
               </span>
             </div>

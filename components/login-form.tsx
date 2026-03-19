@@ -1,10 +1,10 @@
 "use client"
 
-import { signIn } from "next-auth/react"
+import { Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
+import { signIn } from "next-auth/react"
 import { useState } from "react"
-import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -47,19 +47,13 @@ export function LoginForm() {
   return (
     <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
       <CardHeader className="text-center space-y-3 pb-2">
-        <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary">
-          doesairank.me
-        </p>
+        <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary">doesairank.me</p>
         <CardTitle className="text-2xl font-semibold tracking-tight">Sign in</CardTitle>
         <CardDescription>Enter your credentials to access your dashboard</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4 pt-4">
-          {error && (
-            <p className="text-sm text-destructive text-center bg-destructive/10 rounded-md py-2">
-              {error}
-            </p>
-          )}
+          {error && <p className="text-sm text-destructive text-center bg-destructive/10 rounded-md py-2">{error}</p>}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
               Email

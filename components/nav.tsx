@@ -1,9 +1,9 @@
 "use client"
 
-import { signOut } from "next-auth/react"
+import { LogOut, Plus } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LogOut, Plus } from "lucide-react"
+import { signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -57,7 +57,12 @@ export function Nav({ userName }: { userName?: string | null }) {
 
           <span className="text-xs text-muted-foreground font-mono">{userName}</span>
 
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={() => signOut({ callbackUrl: "/" })}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-foreground"
+            onClick={() => signOut({ callbackUrl: "/" })}
+          >
             <LogOut className="h-4 w-4" />
           </Button>
         </div>

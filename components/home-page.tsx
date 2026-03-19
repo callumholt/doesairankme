@@ -1,9 +1,9 @@
 "use client"
 
+import { ArrowRight, BarChart3, ChevronRight, Globe, Loader2, Search, Zap } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { ArrowRight, Globe, Search, BarChart3, Zap, ChevronRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 function AnimatedScore() {
@@ -21,8 +21,7 @@ const steps = [
     number: "01",
     icon: Globe,
     title: "Enter your URL",
-    description:
-      "We scrape your site content to understand what you offer and who your customers are.",
+    description: "We scrape your site content to understand what you offer and who your customers are.",
   },
   {
     number: "02",
@@ -126,8 +125,8 @@ export function HomePage() {
               className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-fade-in opacity-0"
               style={{ animationDelay: "500ms", animationFillMode: "forwards" }}
             >
-              When someone asks ChatGPT, Gemini, or Perplexity for a recommendation
-              in your industry — does your website come up?
+              When someone asks ChatGPT, Gemini, or Perplexity for a recommendation in your industry — does your website
+              come up?
             </p>
 
             {/* CTA */}
@@ -135,16 +134,23 @@ export function HomePage() {
               className="mt-10 flex justify-center gap-4 animate-fade-in opacity-0"
               style={{ animationDelay: "650ms", animationFillMode: "forwards" }}
             >
-              <Button size="lg" asChild className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 text-base font-medium glow-teal">
+              <Button
+                size="lg"
+                asChild
+                className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 text-base font-medium glow-teal"
+              >
                 <Link href="/signup">
                   Test your site
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" asChild className="h-12 px-8 text-base font-medium border-border/60 text-muted-foreground hover:text-foreground">
-                <Link href="#how-it-works">
-                  How it works
-                </Link>
+              <Button
+                variant="outline"
+                size="lg"
+                asChild
+                className="h-12 px-8 text-base font-medium border-border/60 text-muted-foreground hover:text-foreground"
+              >
+                <Link href="#how-it-works">How it works</Link>
               </Button>
             </div>
           </div>
@@ -196,9 +202,7 @@ export function HomePage() {
                 </div>
 
                 <h3 className="font-semibold text-lg text-foreground">{step.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                  {step.description}
-                </p>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{step.description}</p>
               </div>
             ))}
           </div>
@@ -213,9 +217,7 @@ export function HomePage() {
         <div className="relative z-10 mx-auto max-w-3xl px-6 py-24 md:py-32">
           <div className="text-center">
             <span className="font-mono text-xs uppercase tracking-widest text-primary">Get started</span>
-            <h2 className="mt-3 text-3xl md:text-4xl font-bold tracking-tight">
-              Find out in under 2 minutes
-            </h2>
+            <h2 className="mt-3 text-3xl md:text-4xl font-bold tracking-tight">Find out in under 2 minutes</h2>
             <p className="mt-4 text-muted-foreground max-w-lg mx-auto">
               Enter your URL and we will query the leading AI assistants to see if they recommend your website.
             </p>
@@ -261,9 +263,7 @@ export function HomePage() {
                 </Button>
               </div>
             </form>
-            {scanError && (
-              <p className="mt-3 text-center text-sm text-destructive font-mono">{scanError}</p>
-            )}
+            {scanError && <p className="mt-3 text-center text-sm text-destructive font-mono">{scanError}</p>}
             <p className="mt-3 text-center text-xs text-muted-foreground/60 font-mono">
               Free to start. No credit card required.
             </p>

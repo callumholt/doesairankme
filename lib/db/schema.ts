@@ -1,5 +1,5 @@
-import { integer, jsonb, pgTable, primaryKey, real, text, timestamp } from "drizzle-orm/pg-core"
 import { relations } from "drizzle-orm"
+import { integer, jsonb, pgTable, primaryKey, real, text, timestamp } from "drizzle-orm/pg-core"
 
 // ============================================================================
 // AUTH TABLES (NextAuth.js v5)
@@ -111,6 +111,17 @@ export const scanResults = pgTable("scan_results", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 
+export const siteAudits = pgTable("site_audits", {
+  id: text("id").primaryKey(),
+  scanId: text("scan_id").references(() => scans.id, { onDelete: "cascade" }),
+  url: text("url").notNull(),
+  domain: text("domain").notNull(),
+  userId: text("user_id").references(() => users.id, { onDelete: "set null" }),
+  overallScore: integer("overall_score").notNull(),
+  results: jsonb("results").$type<import("@/lib/audit").AuditResults>().notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   scans: many(scans),
@@ -119,13 +130,20 @@ export const usersRelations = relations(users, ({ many }) => ({
 export const scansRelations = relations(scans, ({ one, many }) => ({
   user: one(users, { fields: [scans.userId], references: [users.id] }),
   results: many(scanResults),
+  audit: one(siteAudits, { fields: [scans.id], references: [siteAudits.scanId] }),
 }))
 
 export const scanResultsRelations = relations(scanResults, ({ one }) => ({
   scan: one(scans, { fields: [scanResults.scanId], references: [scans.id] }),
 }))
 
+export const siteAuditsRelations = relations(siteAudits, ({ one }) => ({
+  scan: one(scans, { fields: [siteAudits.scanId], references: [scans.id] }),
+  user: one(users, { fields: [siteAudits.userId], references: [users.id] }),
+}))
+
 // Types
 export type User = typeof users.$inferSelect
 export type Scan = typeof scans.$inferSelect
 export type ScanResult = typeof scanResults.$inferSelect
+export type SiteAudit = typeof siteAudits.$inferSelect

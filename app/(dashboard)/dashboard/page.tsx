@@ -1,17 +1,17 @@
-import type { Metadata } from "next"
 import { desc, eq } from "drizzle-orm"
-import Link from "next/link"
 import { Plus } from "lucide-react"
+import type { Metadata } from "next"
+import Link from "next/link"
+import { ScanCard } from "@/components/scan-card"
+import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth/config"
 import { getDb } from "@/lib/db/client"
 import { scans } from "@/lib/db/schema"
-import { Button } from "@/components/ui/button"
-import { ScanCard } from "@/components/scan-card"
 
 export const metadata: Metadata = {
-	title: "Dashboard",
-	description: "View your AI visibility scans and discoverability scores.",
-	robots: { index: false, follow: false },
+  title: "Dashboard",
+  description: "View your AI visibility scans and discoverability scores.",
+  robots: { index: false, follow: false },
 }
 
 export default async function DashboardPage() {
@@ -25,7 +25,8 @@ export default async function DashboardPage() {
   })
 
   const completedScans = userScans.filter((s) => s.status === "complete" && s.score !== null)
-  const avgScore = completedScans.length > 0 ? completedScans.reduce((sum, s) => sum + s.score!, 0) / completedScans.length : null
+  const avgScore =
+    completedScans.length > 0 ? completedScans.reduce((sum, s) => sum + s.score!, 0) / completedScans.length : null
   const bestScore = completedScans.length > 0 ? Math.max(...completedScans.map((s) => s.score!)) : null
 
   return (
@@ -48,11 +49,15 @@ export default async function DashboardPage() {
           </div>
           <div className="rounded-lg border border-[#14F0C3]/15 bg-[#14F0C3]/[0.03] p-5">
             <p className="text-xs uppercase tracking-wider text-muted-foreground">Average Score</p>
-            <p className="text-3xl font-bold font-mono tabular-nums mt-1 text-[#14F0C3]">{avgScore !== null ? avgScore.toFixed(1) : "-"}</p>
+            <p className="text-3xl font-bold font-mono tabular-nums mt-1 text-[#14F0C3]">
+              {avgScore !== null ? avgScore.toFixed(1) : "-"}
+            </p>
           </div>
           <div className="rounded-lg border border-[#14F0C3]/15 bg-[#14F0C3]/[0.03] p-5">
             <p className="text-xs uppercase tracking-wider text-muted-foreground">Best Score</p>
-            <p className="text-3xl font-bold font-mono tabular-nums mt-1 text-[#14F0C3]">{bestScore !== null ? bestScore.toFixed(1) : "-"}</p>
+            <p className="text-3xl font-bold font-mono tabular-nums mt-1 text-[#14F0C3]">
+              {bestScore !== null ? bestScore.toFixed(1) : "-"}
+            </p>
           </div>
         </div>
       )}
@@ -70,7 +75,9 @@ export default async function DashboardPage() {
             <div className="absolute inset-0 h-20 w-20 rounded-full border border-[#14F0C3]/5 animate-ping [animation-delay:500ms]" />
           </div>
           <h2 className="text-lg font-semibold">No scans yet</h2>
-          <p className="mt-2 text-sm text-muted-foreground max-w-xs">Run your first scan to see how discoverable your site is to AI models.</p>
+          <p className="mt-2 text-sm text-muted-foreground max-w-xs">
+            Run your first scan to see how discoverable your site is to AI models.
+          </p>
           <Button asChild className="mt-6 bg-[#14F0C3] text-zinc-950 hover:bg-[#14F0C3]/80 font-medium">
             <Link href="/scans/new">
               <Plus className="mr-1 h-4 w-4" />

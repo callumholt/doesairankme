@@ -1,13 +1,15 @@
 "use client"
 
+import { AlertCircle, ArrowRight, Lock } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { AlertCircle, Lock, ArrowRight } from "lucide-react"
-import { useAnonScanPolling } from "@/hooks/use-anon-scan-polling"
-import { ScanProgress } from "@/components/scan-progress"
 import { ResultsTable } from "@/components/results-table"
+import { ScanProgress } from "@/components/scan-progress"
+import { SiteHealthTab } from "@/components/site-health-tab"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useAnonScanPolling } from "@/hooks/use-anon-scan-polling"
 
 function HeroScore({ score }: { score: number | null }) {
   if (score === null) return null
@@ -21,20 +23,14 @@ function HeroScore({ score }: { score: number | null }) {
       ? "shadow-[0_0_60px_-10px_rgba(245,158,11,0.35)]"
       : "shadow-[0_0_60px_-10px_rgba(20,240,195,0.35)]"
 
-  const textColour = isLow
-    ? "text-red-400"
-    : isMid
-      ? "text-amber-400"
-      : "text-[#14F0C3]"
+  const textColour = isLow ? "text-red-400" : isMid ? "text-amber-400" : "text-[#14F0C3]"
 
-  const borderColour = isLow
-    ? "border-red-500/20"
-    : isMid
-      ? "border-amber-500/20"
-      : "border-[#14F0C3]/20"
+  const borderColour = isLow ? "border-red-500/20" : isMid ? "border-amber-500/20" : "border-[#14F0C3]/20"
 
   return (
-    <div className={`flex flex-col items-center justify-center rounded-xl border ${borderColour} bg-card p-8 ${glowColour}`}>
+    <div
+      className={`flex flex-col items-center justify-center rounded-xl border ${borderColour} bg-card p-8 ${glowColour}`}
+    >
       <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">AI Discoverability Score</p>
       <span className={`font-mono text-7xl font-bold tabular-nums ${textColour}`}>{score}</span>
       <p className="text-xs text-muted-foreground mt-3 font-mono">/ 100</p>
@@ -47,8 +43,11 @@ function SignupGate({ scanId, gatedCount }: { scanId: string; gatedCount: number
     <div className="relative mt-6">
       {/* Blurred placeholder rows */}
       <div className="space-y-2 select-none pointer-events-none" aria-hidden>
-        {Array.from({ length: Math.min(gatedCount, 3) }).map((_, i) => (
-          <div key={i} className="flex items-center gap-4 rounded-lg border border-border/30 bg-card/30 p-4 blur-[6px]">
+        {Array.from({ length: Math.min(gatedCount, 3) }, (_, i) => `row-${i}`).map((key) => (
+          <div
+            key={key}
+            className="flex items-center gap-4 rounded-lg border border-border/30 bg-card/30 p-4 blur-[6px]"
+          >
             <div className="h-4 w-4 rounded-full bg-muted-foreground/20" />
             <div className="flex-1 space-y-1">
               <div className="h-3 w-3/4 rounded bg-muted-foreground/15" />
@@ -63,7 +62,9 @@ function SignupGate({ scanId, gatedCount }: { scanId: string; gatedCount: number
       <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-background via-background/95 to-background/60 rounded-lg">
         <div className="flex items-center gap-2 text-muted-foreground mb-3">
           <Lock className="h-4 w-4" />
-          <span className="font-mono text-sm">{gatedCount} more result{gatedCount !== 1 ? "s" : ""} hidden</span>
+          <span className="font-mono text-sm">
+            {gatedCount} more result{gatedCount !== 1 ? "s" : ""} hidden
+          </span>
         </div>
         <p className="text-sm text-muted-foreground/70 mb-5 text-center max-w-sm">
           Create a free account to see all your results, track changes over time, and scan with more AI models.
@@ -76,9 +77,7 @@ function SignupGate({ scanId, gatedCount }: { scanId: string; gatedCount: number
             </Link>
           </Button>
           <Button variant="outline" asChild className="border-border/60 text-muted-foreground hover:text-foreground">
-            <Link href={`/login?redirect=/scans/${scanId}`}>
-              Sign in
-            </Link>
+            <Link href={`/login?redirect=/scans/${scanId}`}>Sign in</Link>
           </Button>
         </div>
       </div>
@@ -162,45 +161,56 @@ export default function AnonScanPage() {
         </p>
       </div>
 
-      {/* Hero score */}
-      <HeroScore score={scan.score} />
+      <Tabs defaultValue="results">
+        <TabsList>
+          <TabsTrigger value="results">AI Visibility</TabsTrigger>
+          <TabsTrigger value="health">Site Health</TabsTrigger>
+        </TabsList>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Appearance Rate</p>
-          <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
-            {scan.appearanceRate !== null ? `${Math.round(scan.appearanceRate * 100)}%` : "-"}
-          </p>
-        </div>
-        <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Avg Position</p>
-          <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
-            {scan.avgPosition !== null ? scan.avgPosition.toFixed(1) : "-"}
-          </p>
-        </div>
-        <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Found / Total</p>
-          <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
-            <span className="text-[#14F0C3]">?</span>
-            <span className="text-muted-foreground mx-1">/</span>
-            {scan.results.length}
-          </p>
-        </div>
-      </div>
+        <TabsContent value="results" className="space-y-8 mt-6">
+          {/* Hero score */}
+          <HeroScore score={scan.score} />
 
-      {/* Visible results */}
-      <Card className="border-[#14F0C3]/10">
-        <CardHeader>
-          <CardTitle>Query Results</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResultsTable results={visibleResults} domain={scan.domain} />
-          {gatedResults.length > 0 && (
-            <SignupGate scanId={id} gatedCount={gatedResults.length} />
-          )}
-        </CardContent>
-      </Card>
+          {/* Stats row */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Appearance Rate</p>
+              <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
+                {scan.appearanceRate !== null ? `${Math.round(scan.appearanceRate * 100)}%` : "-"}
+              </p>
+            </div>
+            <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Avg Position</p>
+              <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
+                {scan.avgPosition !== null ? scan.avgPosition.toFixed(1) : "-"}
+              </p>
+            </div>
+            <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Found / Total</p>
+              <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
+                <span className="text-[#14F0C3]">?</span>
+                <span className="text-muted-foreground mx-1">/</span>
+                {scan.results.length}
+              </p>
+            </div>
+          </div>
+
+          {/* Visible results */}
+          <Card className="border-[#14F0C3]/10">
+            <CardHeader>
+              <CardTitle>Query Results</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResultsTable results={visibleResults} domain={scan.domain} />
+              {gatedResults.length > 0 && <SignupGate scanId={id} gatedCount={gatedResults.length} />}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="health" className="mt-6">
+          <SiteHealthTab scanId={id} scanComplete={scan.status === "complete"} />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

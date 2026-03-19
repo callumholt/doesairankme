@@ -15,7 +15,11 @@ async function openRouterChat(
   apiKey: string,
   model: string,
   messages: Array<{ role: string; content: string }>,
-): Promise<{ content: string; citations: string[]; usage: { prompt_tokens: number; completion_tokens: number; total_tokens: number } | null }> {
+): Promise<{
+  content: string
+  citations: string[]
+  usage: { prompt_tokens: number; completion_tokens: number; total_tokens: number } | null
+}> {
   const res = await fetch(OPENROUTER_BASE, {
     method: "POST",
     headers: {

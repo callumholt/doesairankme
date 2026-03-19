@@ -26,8 +26,7 @@ export function calculateScore(results: ScoringResult[]) {
     total: results.length,
     appeared: appeared.length,
     appearanceRate,
-    avgPosition:
-      appeared.length > 0 ? appeared.reduce((sum, r) => sum + r.position!, 0) / appeared.length : null,
+    avgPosition: appeared.length > 0 ? appeared.reduce((sum, r) => sum + r.position!, 0) / appeared.length : null,
     score: Math.round(score * 10) / 10,
   }
 }

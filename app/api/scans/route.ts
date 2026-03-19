@@ -1,12 +1,12 @@
-import { desc, eq, and, gte, sql } from "drizzle-orm"
+import { and, desc, eq, gte, sql } from "drizzle-orm"
 import { nanoid } from "nanoid"
 import { after, NextResponse } from "next/server"
 import { auth } from "@/lib/auth/config"
 import { getDb } from "@/lib/db/client"
 import { scans, users } from "@/lib/db/schema"
 import { runScan } from "@/lib/scan/runner"
-import { createScanSchema } from "@/lib/validations/scan"
 import { PLANS, type PlanId } from "@/lib/stripe/client"
+import { createScanSchema } from "@/lib/validations/scan"
 
 export async function POST(request: Request) {
   const session = await auth()
@@ -21,9 +21,8 @@ export async function POST(request: Request) {
     const queryCount = parsed.queryCount
 
     // Resolve provider list: support both single and multi-provider
-    const providerList = parsed.providers && parsed.providers.length > 0
-      ? parsed.providers
-      : [parsed.provider || "gemini"]
+    const providerList =
+      parsed.providers && parsed.providers.length > 0 ? parsed.providers : [parsed.provider || "gemini"]
 
     const db = getDb()
 
@@ -95,10 +94,7 @@ export async function POST(request: Request) {
       })
     }
 
-    return NextResponse.json(
-      ids.length === 1 ? { id: ids[0] } : { ids },
-      { status: 201 },
-    )
+    return NextResponse.json(ids.length === 1 ? { id: ids[0] } : { ids }, { status: 201 })
   } catch (err) {
     if (err instanceof Error && err.name === "ZodError") {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 })

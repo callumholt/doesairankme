@@ -1,7 +1,8 @@
 import { eq } from "drizzle-orm"
 import { nanoid } from "nanoid"
+import { runAudit } from "@/lib/audit"
 import { getDb } from "@/lib/db/client"
-import { scanResults, scans } from "@/lib/db/schema"
+import { scanResults, scans, siteAudits } from "@/lib/db/schema"
 import { getProvider } from "@/lib/providers"
 import { calculateScore } from "./scoring"
 import { scrapeContent } from "./scraper"
@@ -44,9 +45,12 @@ export async function runScan(scanId: string) {
     await db.update(scans).set({ status: "scraping" }).where(eq(scans.id, scanId))
     const { source, content } = await scrapeContent(scan.url)
 
-    // Step 2: Generate queries
+    // Step 2: Generate queries + run GEO audit in parallel
     await db.update(scans).set({ status: "generating", contentSource: source }).where(eq(scans.id, scanId))
-    const queries = await provider.generateQueries(content, scan.queryCount)
+    const [queries, auditResults] = await Promise.all([
+      provider.generateQueries(content, scan.queryCount),
+      runAudit(scan.url).catch(() => null),
+    ])
 
     // Step 3: Search
     await db.update(scans).set({ status: "searching" }).where(eq(scans.id, scanId))
@@ -117,10 +121,10 @@ export async function runScan(scanId: string) {
       }
     }
 
-    // Step 4: Calculate score
+    // Step 4: Calculate score and persist audit
     const scoring = calculateScore(results)
 
-    await db
+    const updateScan = db
       .update(scans)
       .set({
         status: "complete",
@@ -131,6 +135,20 @@ export async function runScan(scanId: string) {
         completedAt: new Date(),
       })
       .where(eq(scans.id, scanId))
+
+    const insertAudit = auditResults
+      ? db.insert(siteAudits).values({
+          id: nanoid(),
+          scanId,
+          url: scan.url,
+          domain: scan.domain,
+          userId: scan.userId ?? null,
+          overallScore: auditResults.overallScore,
+          results: auditResults,
+        })
+      : Promise.resolve()
+
+    await Promise.all([updateScan, insertAudit])
   } catch (err) {
     await db
       .update(scans)

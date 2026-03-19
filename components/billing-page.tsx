@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { Check, Zap } from "lucide-react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -25,7 +25,9 @@ export function BillingPage() {
   const [userPlan, setUserPlan] = useState<string>("free")
 
   useEffect(() => {
-    fetch("/api/user/plan").then((r) => r.json()).then((d) => setUserPlan(d.plan || "free"))
+    fetch("/api/user/plan")
+      .then((r) => r.json())
+      .then((d) => setUserPlan(d.plan || "free"))
   }, [])
 
   async function handleCheckout(priceId: string) {
@@ -58,9 +60,7 @@ export function BillingPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Billing</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manage your subscription and billing details.
-        </p>
+        <p className="text-sm text-muted-foreground mt-1">Manage your subscription and billing details.</p>
       </div>
 
       {/* Billing toggle */}
@@ -130,9 +130,7 @@ export function BillingPage() {
               <span className="text-3xl font-bold font-mono text-[#14F0C3]">
                 ${billing === "monthly" ? "29" : "290"}
               </span>
-              <span className="text-muted-foreground text-sm">
-                /{billing === "monthly" ? "month" : "year"}
-              </span>
+              <span className="text-muted-foreground text-sm">/{billing === "monthly" ? "month" : "year"}</span>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -144,12 +142,7 @@ export function BillingPage() {
             ))}
             <div className="pt-4">
               {userPlan === "pro" ? (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={handlePortal}
-                  disabled={loading === "portal"}
-                >
+                <Button variant="outline" className="w-full" onClick={handlePortal} disabled={loading === "portal"}>
                   {loading === "portal" ? "Loading..." : "Manage subscription"}
                 </Button>
               ) : (

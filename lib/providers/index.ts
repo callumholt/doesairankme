@@ -1,7 +1,7 @@
-import type { ScanProvider } from "./types"
 import { createGeminiProvider } from "./gemini"
 import { createOpenAIProvider } from "./openai"
 import { createOpenRouterProvider } from "./openrouter"
+import type { ScanProvider } from "./types"
 
 export function getProvider(name: string): ScanProvider {
   switch (name) {

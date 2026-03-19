@@ -1,7 +1,7 @@
-import Link from "next/link"
 import { ArrowRight, Clock, Loader2 } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
+import Link from "next/link"
 import { ScoreBadge } from "@/components/score-badge"
+import { Card, CardContent } from "@/components/ui/card"
 import type { Scan } from "@/lib/db/schema"
 
 const statusLabels: Record<string, string> = {
@@ -25,7 +25,9 @@ export function ScanCard({ scan }: { scan: Scan }) {
 
   return (
     <Link href={`/scans/${scan.id}`}>
-      <Card className={`border-l-[3px] ${getBorderColour(scan.score)} transition-all duration-200 hover:scale-[1.01] hover:shadow-md hover:shadow-[#14F0C3]/5 hover:border-[#14F0C3]/20`}>
+      <Card
+        className={`border-l-[3px] ${getBorderColour(scan.score)} transition-all duration-200 hover:scale-[1.01] hover:shadow-md hover:shadow-[#14F0C3]/5 hover:border-[#14F0C3]/20`}
+      >
         <CardContent className="flex items-center gap-4 py-4">
           <div className="flex-1 min-w-0">
             <p className="font-medium truncate">
