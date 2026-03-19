@@ -60,15 +60,17 @@ export async function POST(request: Request) {
       )
     }
 
-    // Rate limit: max 5 scans per user per hour
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
-    const recentScans = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(scans)
-      .where(and(eq(scans.userId, session.user.id), gte(scans.createdAt, oneHourAgo)))
+    // Rate limit: max 5 scans per user per hour (unless exempt)
+    if (!user?.rateLimitExempt) {
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
+      const recentScans = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(scans)
+        .where(and(eq(scans.userId, session.user.id), gte(scans.createdAt, oneHourAgo)))
 
-    if (recentScans[0].count + providerList.length > 5) {
-      return NextResponse.json({ error: "Rate limit exceeded. Max 5 scans per hour." }, { status: 429 })
+      if (recentScans[0].count + providerList.length > 5) {
+        return NextResponse.json({ error: "Rate limit exceeded. Max 5 scans per hour." }, { status: 429 })
+      }
     }
 
     const domain = new URL(url).hostname.replace(/^www\./, "")

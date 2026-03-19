@@ -16,6 +16,7 @@ export const users = pgTable("users", {
   stripeSubscriptionId: text("stripe_subscription_id"),
   stripePriceId: text("stripe_price_id"),
   plan: text("plan").notNull().default("free"),
+  rateLimitExempt: integer("rate_limit_exempt").notNull().default(0),
   planExpiresAt: timestamp("plan_expires_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
