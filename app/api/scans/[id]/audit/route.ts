@@ -1,5 +1,7 @@
 import { and, eq } from "drizzle-orm"
 import { NextResponse } from "next/server"
+import type { AuditResults } from "@/lib/audit"
+import { generateRecommendations } from "@/lib/audit/recommendations"
 import { auth } from "@/lib/auth/config"
 import { getDb } from "@/lib/db/client"
 import { scans, siteAudits } from "@/lib/db/schema"
@@ -26,5 +28,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "Audit not found" }, { status: 404 })
   }
 
-  return NextResponse.json(audit)
+  const recommendations = generateRecommendations(audit.results as AuditResults)
+
+  return NextResponse.json({ ...audit, recommendations })
 }

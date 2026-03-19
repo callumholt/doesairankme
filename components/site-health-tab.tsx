@@ -1,10 +1,11 @@
 "use client"
 
-import { AlertCircle, CheckCircle, XCircle } from "lucide-react"
+import { AlertCircle, CheckCircle, ChevronDown, ChevronUp, XCircle } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { AuditResults } from "@/lib/audit"
+import type { Recommendation } from "@/lib/audit/recommendations"
 import type { SiteAudit } from "@/lib/db/schema"
 
 type CheckStatus = "pass" | "warn" | "fail"
@@ -15,6 +16,8 @@ type CheckDisplay = {
   summary: string
   fix: string | null
 }
+
+type RecommendationFilter = "all" | "critical" | "important" | "suggestion"
 
 function StatusIcon({ status }: { status: CheckStatus }) {
   if (status === "pass") return <CheckCircle className="h-5 w-5 text-[#14F0C3] shrink-0" />
@@ -254,8 +257,207 @@ function CheckCard({ check }: { check: CheckDisplay }) {
   )
 }
 
+function SeverityDot({ severity }: { severity: Recommendation["severity"] }) {
+  if (severity === "critical") {
+    return <span className="mt-0.5 h-2.5 w-2.5 rounded-full bg-red-400 shrink-0" />
+  }
+  if (severity === "important") {
+    return <span className="mt-0.5 h-2.5 w-2.5 rounded-full bg-amber-400 shrink-0" />
+  }
+  return <span className="mt-0.5 h-2.5 w-2.5 rounded-full bg-blue-400 shrink-0" />
+}
+
+function CategoryBadge({ category }: { category: Recommendation["category"] }) {
+  if (category === "technical") {
+    return <Badge className="bg-slate-500/10 text-slate-400 border-slate-500/20 border text-xs">Technical</Badge>
+  }
+  if (category === "content") {
+    return <Badge className="bg-violet-500/10 text-violet-400 border-violet-500/20 border text-xs">Content</Badge>
+  }
+  return <Badge className="bg-sky-500/10 text-sky-400 border-sky-500/20 border text-xs">Off-site</Badge>
+}
+
+function RecommendationCard({
+  rec,
+  completed,
+  onToggle,
+}: {
+  rec: Recommendation
+  completed: boolean
+  onToggle: () => void
+}) {
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <Card className={`border-border/50 transition-opacity ${completed ? "opacity-50" : ""}`}>
+      <CardContent className="py-4 px-5">
+        <div className="flex items-start gap-3">
+          {/* Checkbox */}
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-label={completed ? "Mark as incomplete" : "Mark as complete"}
+            className={`mt-0.5 h-4 w-4 shrink-0 rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+              completed ? "bg-[#14F0C3] border-[#14F0C3]" : "border-border bg-transparent hover:border-muted-foreground"
+            }`}
+          >
+            {completed && (
+              <svg viewBox="0 0 12 12" fill="none" className="h-full w-full p-0.5" aria-hidden="true">
+                <path d="M2 6l3 3 5-5" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </button>
+
+          <SeverityDot severity={rec.severity} />
+
+          <div className="flex-1 min-w-0">
+            {/* Title row */}
+            <div className="flex flex-wrap items-center gap-2 mb-1.5">
+              <span className={`font-medium text-sm ${completed ? "line-through text-muted-foreground" : ""}`}>
+                {rec.title}
+              </span>
+              <CategoryBadge category={rec.category} />
+            </div>
+
+            {/* Description */}
+            <p className="text-sm text-muted-foreground mb-2">{rec.description}</p>
+
+            {/* Impact callout */}
+            <div className="rounded-md border border-border/50 bg-muted/30 px-3 py-2 mb-2">
+              <p className="text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">Impact: </span>
+                {rec.impact}
+              </p>
+            </div>
+
+            {/* How to fix — expandable */}
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {expanded ? (
+                <>
+                  <ChevronUp className="h-3.5 w-3.5" />
+                  Hide instructions
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-3.5 w-3.5" />
+                  How to fix
+                </>
+              )}
+            </button>
+
+            {expanded && (
+              <div className="mt-2 border-l-2 border-border pl-3">
+                <pre className="text-xs text-muted-foreground/80 whitespace-pre-wrap font-sans leading-relaxed">
+                  {rec.howToFix}
+                </pre>
+              </div>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function RecommendationsSection({ recommendations }: { recommendations: Recommendation[] }) {
+  const [filter, setFilter] = useState<RecommendationFilter>("all")
+  const [completed, setCompleted] = useState<Set<string>>(new Set())
+
+  const criticalCount = recommendations.filter((r) => r.severity === "critical").length
+  const importantCount = recommendations.filter((r) => r.severity === "important").length
+  const suggestionCount = recommendations.filter((r) => r.severity === "suggestion").length
+
+  const filtered = recommendations.filter((r) => {
+    if (filter === "all") return true
+    if (filter === "suggestion") return r.severity === "suggestion"
+    return r.severity === filter
+  })
+
+  function toggleCompleted(id: string) {
+    setCompleted((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }
+
+  const filterTabs: { key: RecommendationFilter; label: string; count: number }[] = [
+    { key: "all", label: "All", count: recommendations.length },
+    { key: "critical", label: "Critical", count: criticalCount },
+    { key: "important", label: "Important", count: importantCount },
+    { key: "suggestion", label: "Suggestions", count: suggestionCount },
+  ]
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex flex-wrap items-center gap-3">
+        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Recommendations</h2>
+        <Badge className="bg-muted text-muted-foreground border-border border font-mono tabular-nums">
+          {recommendations.length}
+        </Badge>
+      </div>
+
+      {/* Summary row */}
+      {recommendations.length > 0 && (
+        <p className="text-xs text-muted-foreground">
+          {criticalCount > 0 && <span className="text-red-400 font-medium">{criticalCount} critical</span>}
+          {criticalCount > 0 && importantCount > 0 && <span>, </span>}
+          {importantCount > 0 && <span className="text-amber-400 font-medium">{importantCount} important</span>}
+          {(criticalCount > 0 || importantCount > 0) && suggestionCount > 0 && <span>, </span>}
+          {suggestionCount > 0 && <span className="text-blue-400 font-medium">{suggestionCount} suggestions</span>}
+        </p>
+      )}
+
+      {/* Filter tabs */}
+      <div className="flex flex-wrap gap-2">
+        {filterTabs.map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => setFilter(tab.key)}
+            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors border ${
+              filter === tab.key
+                ? "bg-foreground/10 border-foreground/20 text-foreground"
+                : "border-border bg-transparent text-muted-foreground hover:text-foreground hover:border-foreground/20"
+            }`}
+          >
+            {tab.label}
+            <span className="font-mono tabular-nums opacity-60">{tab.count}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Recommendation cards */}
+      {filtered.length === 0 ? (
+        <p className="text-sm text-muted-foreground py-4 text-center">No recommendations in this category.</p>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map((rec) => (
+            <RecommendationCard
+              key={rec.id}
+              rec={rec}
+              completed={completed.has(rec.id)}
+              onToggle={() => toggleCompleted(rec.id)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function SiteHealthTab({ scanId, scanComplete }: { scanId: string; scanComplete: boolean }) {
   const [audit, setAudit] = useState<SiteAudit | null>(null)
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -277,6 +479,7 @@ export function SiteHealthTab({ scanId, scanComplete }: { scanId: string; scanCo
         }
         const data = await res.json()
         setAudit(data)
+        setRecommendations(data.recommendations ?? [])
         setIsLoading(false)
       } catch {
         setError("Network error loading audit")
@@ -349,6 +552,9 @@ export function SiteHealthTab({ scanId, scanComplete }: { scanId: string; scanCo
           <CheckCard key={check.name} check={check} />
         ))}
       </div>
+
+      {/* Recommendations */}
+      {recommendations.length > 0 && <RecommendationsSection recommendations={recommendations} />}
     </div>
   )
 }
