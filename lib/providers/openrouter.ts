@@ -3,7 +3,7 @@ import type { ScanProvider, SearchResult } from "./types"
 const OPENROUTER_BASE = "https://openrouter.ai/api/v1/chat/completions"
 
 // Models for query generation (cheap, fast)
-const QUERY_MODEL = "google/gemini-2.0-flash-001"
+const QUERY_MODEL = "google/gemini-2.0-flash-lite-001"
 
 // Models for grounded search (must support web search with citations)
 const SEARCH_MODELS: Record<string, string> = {
