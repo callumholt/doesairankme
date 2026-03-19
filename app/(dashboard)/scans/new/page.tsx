@@ -1,17 +1,28 @@
 "use client"
 
+import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { Lock, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
+const PRO_PROVIDERS = ["openai", "perplexity-sonar", "perplexity-sonar-pro"]
+
 export default function NewScanPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [plan, setPlan] = useState<string>("free")
+
+  useEffect(() => {
+    fetch("/api/user/plan").then((r) => r.json()).then((d) => setPlan(d.plan || "free"))
+  }, [])
+
+  const isFree = plan !== "pro"
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -90,11 +101,25 @@ export default function NewScanPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="gemini">Gemini</SelectItem>
-                  <SelectItem value="openai">OpenAI</SelectItem>
-                  <SelectItem value="perplexity-sonar">Perplexity Sonar</SelectItem>
-                  <SelectItem value="perplexity-sonar-pro">Perplexity Sonar Pro</SelectItem>
+                  {PRO_PROVIDERS.map((p) => (
+                    <SelectItem key={p} value={p} disabled={isFree}>
+                      <span className="flex items-center gap-2">
+                        {p === "openai" ? "OpenAI" : p === "perplexity-sonar" ? "Perplexity Sonar" : "Perplexity Sonar Pro"}
+                        {isFree && <Lock className="h-3 w-3 text-muted-foreground/40" />}
+                      </span>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+              {isFree && (
+                <Link
+                  href="/billing"
+                  className="flex items-center gap-1.5 text-xs text-primary hover:underline underline-offset-2 mt-1"
+                >
+                  <Zap className="h-3 w-3" />
+                  Upgrade to Pro to unlock all providers
+                </Link>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -113,6 +138,16 @@ export default function NewScanPage() {
                 </SelectContent>
               </Select>
             </div>
+
+            {isFree && (
+              <div className="rounded-md border border-primary/15 bg-primary/[0.04] p-3 text-xs text-muted-foreground">
+                <span className="font-mono text-primary font-medium">Free plan:</span>{" "}
+                3 scans per month.{" "}
+                <Link href="/billing" className="text-primary underline underline-offset-2">
+                  Upgrade for unlimited.
+                </Link>
+              </div>
+            )}
           </CardContent>
           <CardFooter>
             <Button
