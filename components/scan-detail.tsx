@@ -1,10 +1,14 @@
 "use client"
 
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, Check, Copy, Globe, Lock } from "lucide-react"
 import { useParams } from "next/navigation"
+import { useState } from "react"
+import { toast } from "sonner"
 import { ResultsTable } from "@/components/results-table"
 import { ScanProgress } from "@/components/scan-progress"
 import { SiteHealthTab } from "@/components/site-health-tab"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useScanPolling } from "@/hooks/use-scan-polling"
@@ -93,6 +97,108 @@ function OverallSentimentCard({ results }: { results: ScanResult[] }) {
   )
 }
 
+function SharePanel({
+  scanId,
+  initialIsPublic,
+  initialSlug,
+}: {
+  scanId: string
+  initialIsPublic: boolean
+  initialSlug: string | null
+}) {
+  const [isPublic, setIsPublic] = useState(initialIsPublic)
+  const [slug, setSlug] = useState<string | null>(initialSlug)
+  const [isLoading, setIsLoading] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const shareUrl = slug ? `${window.location.origin}/report/${slug}` : null
+
+  async function handleMakePublic() {
+    setIsLoading(true)
+    try {
+      const res = await fetch(`/api/scans/${scanId}/share`, { method: "POST" })
+      if (!res.ok) throw new Error("Failed to share")
+      const data = (await res.json()) as { publicSlug: string }
+      setIsPublic(true)
+      setSlug(data.publicSlug)
+    } catch {
+      toast.error("Could not share scan. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function handleMakePrivate() {
+    setIsLoading(true)
+    try {
+      const res = await fetch(`/api/scans/${scanId}/share`, { method: "DELETE" })
+      if (!res.ok) throw new Error("Failed to make private")
+      setIsPublic(false)
+      toast.success("Report is now private.")
+    } catch {
+      toast.error("Could not update sharing. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function handleCopy() {
+    if (!shareUrl) return
+    await navigator.clipboard.writeText(shareUrl)
+    setCopied(true)
+    toast.success("Link copied to clipboard.")
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  if (!isPublic) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleMakePublic}
+        disabled={isLoading}
+        className="border-border/60 text-muted-foreground hover:text-foreground gap-1.5 shrink-0"
+      >
+        <Globe className="h-3.5 w-3.5" />
+        Share
+      </Button>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-2 shrink-0">
+      <Badge
+        variant="secondary"
+        className="gap-1 text-xs font-mono bg-[#14F0C3]/10 text-[#14F0C3] border border-[#14F0C3]/20"
+      >
+        <Globe className="h-3 w-3" />
+        Public
+      </Badge>
+      {shareUrl && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleCopy}
+          className="border-border/60 text-muted-foreground hover:text-foreground gap-1.5 font-mono text-xs"
+        >
+          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+          {copied ? "Copied" : "Copy link"}
+        </Button>
+      )}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleMakePrivate}
+        disabled={isLoading}
+        className="text-muted-foreground hover:text-foreground gap-1.5 text-xs"
+      >
+        <Lock className="h-3.5 w-3.5" />
+        Make private
+      </Button>
+    </div>
+  )
+}
+
 export function ScanDetail() {
   const { id } = useParams<{ id: string }>()
   const { scan, isLoading, error } = useScanPolling(id)
@@ -157,12 +263,15 @@ export function ScanDetail() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">{scan.domain}</h1>
-        <p className="text-sm text-muted-foreground mt-1 font-mono">
-          Scanned {new Date(scan.createdAt).toLocaleDateString()} via {scan.provider}
-          {scan.contentSource && ` (${scan.contentSource})`}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">{scan.domain}</h1>
+          <p className="text-sm text-muted-foreground mt-1 font-mono">
+            Scanned {new Date(scan.createdAt).toLocaleDateString()} via {scan.provider}
+            {scan.contentSource && ` (${scan.contentSource})`}
+          </p>
+        </div>
+        <SharePanel scanId={scan.id} initialIsPublic={scan.isPublic} initialSlug={scan.publicSlug ?? null} />
       </div>
 
       <Tabs defaultValue="results">
