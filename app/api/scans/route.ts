@@ -3,9 +3,10 @@ import { nanoid } from "nanoid"
 import { after, NextResponse } from "next/server"
 import { auth } from "@/lib/auth/config"
 import { getDb } from "@/lib/db/client"
-import { scans } from "@/lib/db/schema"
+import { scans, users } from "@/lib/db/schema"
 import { runScan } from "@/lib/scan/runner"
 import { createScanSchema } from "@/lib/validations/scan"
+import { PLANS, type PlanId } from "@/lib/stripe/client"
 
 export async function POST(request: Request) {
   const session = await auth()
@@ -18,6 +19,37 @@ export async function POST(request: Request) {
     const { url, provider, queryCount } = createScanSchema.parse(body)
 
     const db = getDb()
+
+    // Get user's plan
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, session.user.id),
+    })
+    const plan = PLANS[(user?.plan as PlanId) || "free"]
+
+    // Check provider access
+    if (!plan.providers.includes(provider)) {
+      return NextResponse.json(
+        { error: `${provider} is only available on the Pro plan. Upgrade to unlock all providers.` },
+        { status: 403 },
+      )
+    }
+
+    // Check monthly scan limit
+    const startOfMonth = new Date()
+    startOfMonth.setDate(1)
+    startOfMonth.setHours(0, 0, 0, 0)
+
+    const monthlyScans = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(scans)
+      .where(and(eq(scans.userId, session.user.id), gte(scans.createdAt, startOfMonth)))
+
+    if (monthlyScans[0].count >= plan.scansPerMonth) {
+      return NextResponse.json(
+        { error: `You've used all ${plan.scansPerMonth} scans this month. Upgrade to Pro for unlimited scans.` },
+        { status: 403 },
+      )
+    }
 
     // Rate limit: max 5 scans per user per hour
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)

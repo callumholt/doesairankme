@@ -34,6 +34,17 @@ export function Nav({ userName }: { userName?: string | null }) {
           >
             Dashboard
           </Link>
+          <Link
+            href="/billing"
+            className={cn(
+              "relative transition-colors hover:text-foreground",
+              pathname === "/billing"
+                ? "text-[#14F0C3] font-medium after:absolute after:-bottom-[17px] after:left-0 after:right-0 after:h-px after:bg-[#14F0C3]"
+                : "text-muted-foreground",
+            )}
+          >
+            Billing
+          </Link>
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
