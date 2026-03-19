@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { desc, eq } from "drizzle-orm"
 import Link from "next/link"
 import { Plus } from "lucide-react"
@@ -6,6 +7,12 @@ import { getDb } from "@/lib/db/client"
 import { scans } from "@/lib/db/schema"
 import { Button } from "@/components/ui/button"
 import { ScanCard } from "@/components/scan-card"
+
+export const metadata: Metadata = {
+	title: "Dashboard",
+	description: "View your AI visibility scans and discoverability scores.",
+	robots: { index: false, follow: false },
+}
 
 export default async function DashboardPage() {
   const session = await auth()
