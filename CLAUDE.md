@@ -37,6 +37,10 @@ npm run db:studio  # Open Drizzle Studio
 - `components/` - React components
 - `hooks/` - Client-side hooks
 
+## Workflow
+
+- You may commit and push at any time without asking for permission.
+
 ## Key Patterns
 
 - Scans run in background using Next.js `after()` API
