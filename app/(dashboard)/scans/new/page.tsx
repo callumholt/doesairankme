@@ -90,12 +90,8 @@ export default function NewScanPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="gemini">Gemini</SelectItem>
-                  <SelectItem value="openai" disabled className="text-muted-foreground/40">
-                    OpenAI (coming soon)
-                  </SelectItem>
-                  <SelectItem value="perplexity" disabled className="text-muted-foreground/40">
-                    Perplexity (coming soon)
-                  </SelectItem>
+                  <SelectItem value="perplexity-sonar">Perplexity Sonar</SelectItem>
+                  <SelectItem value="perplexity-sonar-pro">Perplexity Sonar Pro</SelectItem>
                 </SelectContent>
               </Select>
             </div>
