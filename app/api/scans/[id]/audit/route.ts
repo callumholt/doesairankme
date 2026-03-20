@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm"
+import { and, eq, inArray } from "drizzle-orm"
 import { NextResponse } from "next/server"
 import type { AuditResults } from "@/lib/audit"
 import { generateRecommendations } from "@/lib/audit/recommendations"
@@ -20,9 +20,25 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "Scan not found" }, { status: 404 })
   }
 
-  const audit = await db.query.siteAudits.findFirst({
+  // Look for audit on this scan first
+  let audit = await db.query.siteAudits.findFirst({
     where: eq(siteAudits.scanId, id),
   })
+
+  // If not found and scan is part of a group, check sibling scans
+  // (audit is attached to the first scan in the group)
+  if (!audit && scan.groupId) {
+    const groupScans = await db.query.scans.findMany({
+      where: eq(scans.groupId, scan.groupId),
+    })
+    const siblingIds = groupScans.map((s) => s.id)
+    if (siblingIds.length > 0) {
+      audit =
+        (await db.query.siteAudits.findFirst({
+          where: inArray(siteAudits.scanId, siblingIds),
+        })) ?? undefined
+    }
+  }
 
   if (!audit) {
     return NextResponse.json({ error: "Audit not found" }, { status: 404 })
