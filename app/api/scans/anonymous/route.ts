@@ -4,7 +4,7 @@ import { cookies, headers } from "next/headers"
 import { after, NextResponse } from "next/server"
 import { getDb } from "@/lib/db/client"
 import { scans } from "@/lib/db/schema"
-import { runScan } from "@/lib/scan/runner"
+import { runScanGroup } from "@/lib/scan/runner"
 
 export async function POST(request: Request) {
   try {
@@ -54,7 +54,6 @@ export async function POST(request: Request) {
         .delete(scans)
         .where(and(isNull(scans.userId), isNull(scans.anonToken), gte(scans.createdAt, new Date(0))))
         .catch(() => {})
-      // Actually delete old unclaimed scans
       await cleanupDb
         .execute(sql`DELETE FROM scans WHERE user_id IS NULL AND created_at < ${sevenDaysAgo}`)
         .catch(() => {})
@@ -86,7 +85,7 @@ export async function POST(request: Request) {
     })
 
     after(async () => {
-      await runScan(id)
+      await runScanGroup([id])
     })
 
     return NextResponse.json({ id }, { status: 201 })

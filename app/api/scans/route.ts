@@ -4,7 +4,7 @@ import { after, NextResponse } from "next/server"
 import { auth } from "@/lib/auth/config"
 import { getDb } from "@/lib/db/client"
 import { scans, users } from "@/lib/db/schema"
-import { runScan } from "@/lib/scan/runner"
+import { runScanGroup } from "@/lib/scan/runner"
 import { PLANS, type PlanId } from "@/lib/stripe/client"
 import { createScanSchema } from "@/lib/validations/scan"
 
@@ -90,11 +90,12 @@ export async function POST(request: Request) {
         queryCount,
         status: "pending",
       })
-
-      after(async () => {
-        await runScan(id)
-      })
     }
+
+    // Run all providers as a single group (scrape once, generate queries once)
+    after(async () => {
+      await runScanGroup(ids)
+    })
 
     if (groupId) {
       return NextResponse.json({ groupId, ids }, { status: 201 })
