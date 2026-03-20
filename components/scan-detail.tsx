@@ -26,9 +26,9 @@ function HeroScore({ score }: { score: number | null }) {
       ? "shadow-[0_0_60px_-10px_rgba(245,158,11,0.35)]"
       : "shadow-[0_0_60px_-10px_rgba(20,240,195,0.35)]"
 
-  const textColour = isLow ? "text-red-400" : isMid ? "text-amber-400" : "text-[#14F0C3]"
+  const textColour = isLow ? "text-red-400" : isMid ? "text-amber-400" : "text-primary"
 
-  const borderColour = isLow ? "border-red-500/20" : isMid ? "border-amber-500/20" : "border-[#14F0C3]/20"
+  const borderColour = isLow ? "border-red-500/20" : isMid ? "border-amber-500/20" : "border-primary/20"
 
   return (
     <div
@@ -169,7 +169,7 @@ function SharePanel({
     <div className="flex items-center gap-2 shrink-0">
       <Badge
         variant="secondary"
-        className="gap-1 text-xs font-mono bg-[#14F0C3]/10 text-[#14F0C3] border border-[#14F0C3]/20"
+        className="gap-1 text-xs font-mono bg-primary/10 text-primary border border-primary/20"
       >
         <Globe className="h-3 w-3" />
         Public
@@ -207,7 +207,7 @@ export function ScanDetail() {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="flex items-center gap-3">
-          <div className="h-2 w-2 rounded-full bg-[#14F0C3] animate-pulse" />
+          <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
           <p className="text-muted-foreground font-mono text-sm">Loading scan...</p>
         </div>
       </div>
@@ -245,7 +245,7 @@ export function ScanDetail() {
     return (
       <div className="space-y-6">
         <h1 className="text-2xl font-bold tracking-tight">{scan.domain}</h1>
-        <Card className="border-[#14F0C3]/10">
+        <Card className="border-primary/10">
           <CardHeader>
             <CardTitle>Scan in progress</CardTitle>
           </CardHeader>
@@ -259,7 +259,6 @@ export function ScanDetail() {
 
   // Complete
   const found = scan.results.filter((r) => r.position !== null)
-  const missed = scan.results.filter((r) => r.position === null)
 
   return (
     <div className="space-y-8">
@@ -286,22 +285,22 @@ export function ScanDetail() {
 
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+            <div className="rounded-lg border border-primary/10 bg-primary/[0.02] p-4 text-center">
               <p className="text-xs uppercase tracking-wider text-muted-foreground">Appearance Rate</p>
               <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
                 {scan.appearanceRate !== null ? `${Math.round(scan.appearanceRate * 100)}%` : "-"}
               </p>
             </div>
-            <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+            <div className="rounded-lg border border-primary/10 bg-primary/[0.02] p-4 text-center">
               <p className="text-xs uppercase tracking-wider text-muted-foreground">Avg Position</p>
               <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
                 {scan.avgPosition !== null ? scan.avgPosition.toFixed(1) : "-"}
               </p>
             </div>
-            <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+            <div className="rounded-lg border border-primary/10 bg-primary/[0.02] p-4 text-center">
               <p className="text-xs uppercase tracking-wider text-muted-foreground">Found / Total</p>
               <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
-                <span className="text-[#14F0C3]">{found.length}</span>
+                <span className="text-primary">{found.length}</span>
                 <span className="text-muted-foreground mx-1">/</span>
                 {scan.results.length}
               </p>
@@ -312,7 +311,7 @@ export function ScanDetail() {
           <OverallSentimentCard results={scan.results} />
 
           {/* Results table */}
-          <Card className="border-[#14F0C3]/10">
+          <Card className="border-primary/10">
             <CardHeader>
               <CardTitle>Query Results</CardTitle>
             </CardHeader>
@@ -321,25 +320,6 @@ export function ScanDetail() {
             </CardContent>
           </Card>
 
-          {/* Missed queries */}
-          {missed.length > 0 && (
-            <Card className="border-muted-foreground/10">
-              <CardHeader>
-                <CardTitle className="text-muted-foreground">
-                  Missed Queries <span className="font-mono text-sm">({missed.length})</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm">
-                  {missed.map((r) => (
-                    <li key={r.id} className="text-muted-foreground/70 border-l-2 border-red-500/20 pl-3">
-                      {r.query}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
         </TabsContent>
 
         <TabsContent value="health" className="mt-6">
