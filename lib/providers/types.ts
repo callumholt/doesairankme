@@ -1,6 +1,11 @@
+export interface GenerateQueriesResult {
+  queries: string[]
+  tokenUsage: TokenUsage | null
+}
+
 export interface ScanProvider {
   name: string
-  generateQueries(content: string, count: number): Promise<string[]>
+  generateQueries(content: string, count: number): Promise<GenerateQueriesResult>
   search(query: string): Promise<SearchResult>
 }
 

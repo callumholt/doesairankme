@@ -48,16 +48,19 @@ export async function runScan(scanId: string) {
 
     // Step 2: Generate queries + run GEO audit in parallel
     await db.update(scans).set({ status: "generating", contentSource: source }).where(eq(scans.id, scanId))
-    const [queries, auditResults] = await Promise.all([
+    const [queryGenResult, auditResults] = await Promise.all([
       provider.generateQueries(content, scan.queryCount),
       runAudit(scan.url).catch(() => null),
     ])
+    const queries = queryGenResult.queries
+    const queryGenTokens = queryGenResult.tokenUsage?.totalTokens ?? 0
 
     // Step 3: Search
     await db.update(scans).set({ status: "searching" }).where(eq(scans.id, scanId))
 
     const results: Array<{ position: number | null; query: string }> = []
     let scanTotalTokens = 0
+    let sentimentTotalTokens = 0
 
     // Track pending sentiment analysis tasks to run in the background
     const sentimentTasks: Array<Promise<void>> = []
@@ -117,8 +120,10 @@ export async function runScan(scanId: string) {
                     confidence: 1,
                     summary: "",
                     concerns: [] as string[],
+                    totalTokens: 0,
                   }
                 : await analyseSentiment(result.response, targetDomain)
+            sentimentTotalTokens += sentimentResult.totalTokens
             await db
               .update(scanResults)
               .set({
@@ -171,6 +176,8 @@ export async function runScan(scanId: string) {
         appearanceRate: scoring.appearanceRate,
         avgPosition: scoring.avgPosition,
         totalTokens: scanTotalTokens,
+        queryGenTokens: queryGenTokens,
+        sentimentTokens: sentimentTotalTokens,
         completedAt: new Date(),
       })
       .where(eq(scans.id, scanId))

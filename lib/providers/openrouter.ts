@@ -1,4 +1,4 @@
-import type { ScanProvider, SearchResult } from "./types"
+import type { GenerateQueriesResult, ScanProvider, SearchResult } from "./types"
 
 const OPENROUTER_BASE = "https://openrouter.ai/api/v1/chat/completions"
 
@@ -55,7 +55,7 @@ export function createOpenRouterProvider(apiKey: string, searchModel = "perplexi
   return {
     name: `openrouter:${searchModel}`,
 
-    async generateQueries(content: string, count: number): Promise<string[]> {
+    async generateQueries(content: string, count: number): Promise<GenerateQueriesResult> {
       const result = await openRouterChat(apiKey, QUERY_MODEL, [
         {
           role: "user",
@@ -65,8 +65,8 @@ CRITICAL RULES:
 - Do NOT mention the business name, brand name, product names, or any proprietary terms from the content
 - These should be generic queries from someone who does NOT know this business exists yet
 - Think about what problem the customer has, not what solution this business offers
-- Mix broad queries ("best AI consultants in Melbourne") with specific needs ("help building an MVP with AI tools")
-- Include location-specific queries where relevant
+- Mix broad category queries with specific problem-based queries
+- Include location-specific queries where relevant based on the business's actual location
 
 Return a JSON array of strings only, no other text.
 
@@ -77,7 +77,16 @@ ${content}`,
 
       const jsonMatch = result.content.match(/\[[\s\S]*\]/)
       if (!jsonMatch) throw new Error("Failed to parse query list from model response")
-      return JSON.parse(jsonMatch[0])
+
+      const tokenUsage = result.usage
+        ? {
+            inputTokens: result.usage.prompt_tokens,
+            outputTokens: result.usage.completion_tokens,
+            totalTokens: result.usage.total_tokens,
+          }
+        : null
+
+      return { queries: JSON.parse(jsonMatch[0]), tokenUsage }
     },
 
     async search(query: string): Promise<SearchResult> {

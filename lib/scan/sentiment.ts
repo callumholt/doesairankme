@@ -5,6 +5,7 @@ export type SentimentResult = {
   confidence: number // 0-1
   summary: string // Brief explanation, e.g. "AI describes the site as a reliable source for..."
   concerns: string[] // Any negative points mentioned
+  totalTokens: number
 }
 
 type GeminiSentimentResponse = {
@@ -72,11 +73,16 @@ Return ONLY the JSON object, no other text.`
       return fallbackResult("not_mentioned")
     }
 
+    // biome-ignore lint/suspicious/noExplicitAny: Gemini SDK types are incomplete
+    const usageMetadata = (response as any).usageMetadata
+    const totalTokens = usageMetadata?.totalTokenCount || 0
+
     return {
       sentiment: parsed.sentiment,
       confidence: typeof parsed.confidence === "number" ? Math.max(0, Math.min(1, parsed.confidence)) : 0.5,
       summary: typeof parsed.summary === "string" ? parsed.summary : "",
       concerns: Array.isArray(parsed.concerns) ? parsed.concerns.filter((c) => typeof c === "string") : [],
+      totalTokens,
     }
   } catch {
     return fallbackResult("not_mentioned")
@@ -89,5 +95,6 @@ function fallbackResult(sentiment: SentimentResult["sentiment"]): SentimentResul
     confidence: 0,
     summary: "",
     concerns: [],
+    totalTokens: 0,
   }
 }

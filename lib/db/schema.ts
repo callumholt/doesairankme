@@ -88,6 +88,8 @@ export const scans = pgTable("scans", {
   avgPosition: real("avg_position"),
   contentSource: text("content_source"),
   totalTokens: integer("total_tokens"),
+  queryGenTokens: integer("query_gen_tokens"),
+  sentimentTokens: integer("sentiment_tokens"),
   error: text("error"),
   isPublic: boolean("is_public").notNull().default(false),
   publicSlug: text("public_slug").unique(),

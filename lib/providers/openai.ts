@@ -1,4 +1,4 @@
-import type { ScanProvider, SearchResult } from "./types"
+import type { GenerateQueriesResult, ScanProvider, SearchResult } from "./types"
 
 const OPENAI_BASE = "https://api.openai.com/v1/responses"
 
@@ -6,7 +6,7 @@ export function createOpenAIProvider(apiKey: string): ScanProvider {
   return {
     name: "openai",
 
-    async generateQueries(content: string, count: number): Promise<string[]> {
+    async generateQueries(content: string, count: number): Promise<GenerateQueriesResult> {
       const res = await fetch(OPENAI_BASE, {
         method: "POST",
         headers: {
@@ -21,8 +21,8 @@ CRITICAL RULES:
 - Do NOT mention the business name, brand name, product names, or any proprietary terms from the content
 - These should be generic queries from someone who does NOT know this business exists yet
 - Think about what problem the customer has, not what solution this business offers
-- Mix broad queries ("best AI consultants in Melbourne") with specific needs ("help building an MVP with AI tools")
-- Include location-specific queries where relevant
+- Mix broad category queries with specific problem-based queries
+- Include location-specific queries where relevant based on the business's actual location
 
 Return a JSON array of strings only, no other text.
 
@@ -40,7 +40,16 @@ ${content}`,
       const text = data.output?.[0]?.content?.[0]?.text || ""
       const jsonMatch = text.match(/\[[\s\S]*\]/)
       if (!jsonMatch) throw new Error("Failed to parse query list from model response")
-      return JSON.parse(jsonMatch[0])
+
+      const tokenUsage = data.usage
+        ? {
+            inputTokens: data.usage.input_tokens || 0,
+            outputTokens: data.usage.output_tokens || 0,
+            totalTokens: (data.usage.input_tokens || 0) + (data.usage.output_tokens || 0),
+          }
+        : null
+
+      return { queries: JSON.parse(jsonMatch[0]), tokenUsage }
     },
 
     async search(query: string): Promise<SearchResult> {
