@@ -322,7 +322,7 @@ export function ScanDetail() {
 
         </TabsContent>
 
-        <TabsContent value="health" className="mt-6">
+        <TabsContent value="health" keepMounted className="mt-6">
           <SiteHealthTab scanId={id} scanComplete={scan.status === "complete"} />
         </TabsContent>
       </Tabs>
