@@ -121,21 +121,21 @@ export function BillingPage() {
         </Card>
 
         {/* Pro */}
-        <Card className={`border-[#14F0C3]/30 ${userPlan === "pro" ? "ring-1 ring-[#14F0C3]/30" : ""}`}>
+        <Card className={`border-primary/30 ${userPlan === "pro" ? "ring-1 ring-primary/30" : ""}`}>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-[#14F0C3]" />
+                <Zap className="h-4 w-4 text-primary" />
                 Pro
               </span>
               {userPlan === "pro" && (
-                <span className="text-xs font-mono uppercase tracking-wider text-[#14F0C3] bg-[#14F0C3]/10 px-2 py-1 rounded">
+                <span className="text-xs font-mono uppercase tracking-wider text-primary bg-primary/10 px-2 py-1 rounded">
                   Current
                 </span>
               )}
             </CardTitle>
             <div className="mt-2">
-              <span className="text-3xl font-bold font-mono text-[#14F0C3]">
+              <span className="text-3xl font-bold font-mono text-primary">
                 ${billing === "monthly" ? "29" : "290"}
               </span>
               <span className="text-muted-foreground text-sm">/{billing === "monthly" ? "month" : "year"}</span>
@@ -144,7 +144,7 @@ export function BillingPage() {
           <CardContent className="space-y-3">
             {features.pro.map((f) => (
               <div key={f} className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-[#14F0C3]" />
+                <Check className="h-4 w-4 text-primary" />
                 {f}
               </div>
             ))}
@@ -155,7 +155,7 @@ export function BillingPage() {
                 </Button>
               ) : (
                 <Button
-                  className="w-full bg-[#14F0C3] text-zinc-950 hover:bg-[#14F0C3]/80 font-medium glow-teal"
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/80 font-medium glow-teal"
                   onClick={() => handleCheckout(priceId)}
                   disabled={loading === priceId}
                 >

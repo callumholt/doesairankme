@@ -23,9 +23,9 @@ function HeroScore({ score }: { score: number | null }) {
       ? "shadow-[0_0_60px_-10px_rgba(245,158,11,0.35)]"
       : "shadow-[0_0_60px_-10px_rgba(20,240,195,0.35)]"
 
-  const textColour = isLow ? "text-red-400" : isMid ? "text-amber-400" : "text-[#14F0C3]"
+  const textColour = isLow ? "text-red-400" : isMid ? "text-amber-400" : "text-primary"
 
-  const borderColour = isLow ? "border-red-500/20" : isMid ? "border-amber-500/20" : "border-[#14F0C3]/20"
+  const borderColour = isLow ? "border-red-500/20" : isMid ? "border-amber-500/20" : "border-primary/20"
 
   return (
     <div
@@ -94,7 +94,7 @@ export default function AnonScanPage() {
       <div className="mx-auto max-w-3xl px-6 py-20">
         <div className="flex items-center justify-center">
           <div className="flex items-center gap-3">
-            <div className="h-2 w-2 rounded-full bg-[#14F0C3] animate-pulse" />
+            <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
             <p className="text-muted-foreground font-mono text-sm">Loading scan...</p>
           </div>
         </div>
@@ -135,7 +135,7 @@ export default function AnonScanPage() {
     return (
       <div className="mx-auto max-w-3xl px-6 py-12 space-y-6">
         <h1 className="text-2xl font-bold tracking-tight">{scan.domain}</h1>
-        <Card className="border-[#14F0C3]/10">
+        <Card className="border-primary/10">
           <CardHeader>
             <CardTitle>Scan in progress</CardTitle>
           </CardHeader>
@@ -173,22 +173,22 @@ export default function AnonScanPage() {
 
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+            <div className="rounded-lg border border-primary/10 bg-primary/[0.02] p-4 text-center">
               <p className="text-xs uppercase tracking-wider text-muted-foreground">Appearance Rate</p>
               <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
                 {scan.appearanceRate !== null ? `${Math.round(scan.appearanceRate * 100)}%` : "-"}
               </p>
             </div>
-            <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+            <div className="rounded-lg border border-primary/10 bg-primary/[0.02] p-4 text-center">
               <p className="text-xs uppercase tracking-wider text-muted-foreground">Avg Position</p>
               <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
                 {scan.avgPosition !== null ? scan.avgPosition.toFixed(1) : "-"}
               </p>
             </div>
-            <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+            <div className="rounded-lg border border-primary/10 bg-primary/[0.02] p-4 text-center">
               <p className="text-xs uppercase tracking-wider text-muted-foreground">Found / Total</p>
               <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
-                <span className="text-[#14F0C3]">?</span>
+                <span className="text-primary">?</span>
                 <span className="text-muted-foreground mx-1">/</span>
                 {scan.results.length}
               </p>
@@ -196,7 +196,7 @@ export default function AnonScanPage() {
           </div>
 
           {/* Visible results */}
-          <Card className="border-[#14F0C3]/10">
+          <Card className="border-primary/10">
             <CardHeader>
               <CardTitle>Query Results</CardTitle>
             </CardHeader>

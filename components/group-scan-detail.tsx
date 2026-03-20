@@ -34,10 +34,10 @@ function ProviderScoreCard({ scan }: { scan: ScanWithResults }) {
 
   if (isRunning) {
     return (
-      <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+      <div className="rounded-lg border border-primary/10 bg-primary/[0.02] p-4 text-center">
         <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
         <div className="flex items-center justify-center gap-2 mt-1">
-          <Loader2 className="h-4 w-4 animate-spin text-[#14F0C3]" />
+          <Loader2 className="h-4 w-4 animate-spin text-primary" />
           <span className="text-xs font-mono text-muted-foreground">{scan.status}</span>
         </div>
       </div>
@@ -45,7 +45,7 @@ function ProviderScoreCard({ scan }: { scan: ScanWithResults }) {
   }
 
   return (
-    <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+    <div className="rounded-lg border border-primary/10 bg-primary/[0.02] p-4 text-center">
       <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">{label}</p>
       <ScoreBadge score={scan.score} />
       <p className="text-xs text-muted-foreground mt-2 font-mono">
@@ -58,7 +58,7 @@ function ProviderScoreCard({ scan }: { scan: ScanWithResults }) {
 function PositionCell({ position }: { position: number | null }) {
   if (position !== null) {
     return (
-      <span className="inline-flex items-center gap-1 text-[#14F0C3]">
+      <span className="inline-flex items-center gap-1 text-primary">
         <CheckCircle2 className="h-3 w-3" />
         <span className="font-mono font-bold text-xs tabular-nums">#{position}</span>
       </span>
@@ -91,7 +91,7 @@ function ComparisonTable({ groupScans }: { groupScans: ScanWithResults[] }) {
   return (
     <Table>
       <TableHeader>
-        <TableRow className="border-[#14F0C3]/10 hover:bg-transparent">
+        <TableRow className="border-primary/10 hover:bg-transparent">
           <TableHead className="text-xs uppercase tracking-wider">Query</TableHead>
           {groupScans.map((scan) => (
             <TableHead key={scan.id} className="text-center text-xs uppercase tracking-wider w-28">
@@ -130,7 +130,7 @@ export function GroupScanDetail() {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="flex items-center gap-3">
-          <div className="h-2 w-2 rounded-full bg-[#14F0C3] animate-pulse" />
+          <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
           <p className="text-muted-foreground font-mono text-sm">Loading scans...</p>
         </div>
       </div>
@@ -171,7 +171,7 @@ export function GroupScanDetail() {
       {!allDone && runningScans.length > 0 && (
         <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${runningScans.length}, 1fr)` }}>
           {runningScans.map((scan) => (
-            <Card key={scan.id} className="border-[#14F0C3]/10">
+            <Card key={scan.id} className="border-primary/10">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-mono">{PROVIDER_LABELS[scan.provider] || scan.provider}</CardTitle>
               </CardHeader>
@@ -198,7 +198,7 @@ export function GroupScanDetail() {
 
       {/* Comparison table */}
       {allDone && groupScans.some((s) => s.status === "complete") && (
-        <Card className="border-[#14F0C3]/10">
+        <Card className="border-primary/10">
           <CardHeader>
             <CardTitle>Query Results by Provider</CardTitle>
           </CardHeader>

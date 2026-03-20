@@ -46,7 +46,7 @@ function SourcesList({ sources, domain }: { sources: Array<{ url: string; title:
             {isTarget && (
               <Badge
                 variant="secondary"
-                className="ml-2 text-xs bg-[#14F0C3]/15 text-[#14F0C3] border border-[#14F0C3]/20"
+                className="ml-2 text-xs bg-primary/15 text-primary border border-primary/20"
               >
                 Your site
               </Badge>
@@ -99,7 +99,7 @@ function FullResponsePanel({ result, domain }: { result: ScanResult; domain: str
       {hasCitedSnippet && (
         <div className="mt-3">
           <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">Cited snippet</p>
-          <blockquote className="border-l-2 border-[#14F0C3]/50 pl-3 text-sm text-muted-foreground italic">
+          <blockquote className="border-l-2 border-primary/50 pl-3 text-sm text-muted-foreground italic">
             {result.citedSnippet}
           </blockquote>
         </div>
@@ -137,7 +137,7 @@ function ResultRow({ result, domain }: { result: ScanResult; domain: string }) {
   return (
     <>
       <TableRow
-        className={`transition-colors ${hasExpandedContent ? "cursor-pointer" : ""} ${found ? "hover:bg-[#14F0C3]/[0.03]" : "hover:bg-muted/30"}`}
+        className={`transition-colors ${hasExpandedContent ? "cursor-pointer" : ""} ${found ? "hover:bg-primary/[0.03]" : "hover:bg-muted/30"}`}
         onClick={() => hasExpandedContent && setExpanded(!expanded)}
       >
         <TableCell className="w-8 text-muted-foreground/40">
@@ -157,7 +157,7 @@ function ResultRow({ result, domain }: { result: ScanResult; domain: string }) {
         </TableCell>
         <TableCell className="text-center">
           {found ? (
-            <span className="inline-flex items-center gap-1.5 text-[#14F0C3]">
+            <span className="inline-flex items-center gap-1.5 text-primary">
               <CheckCircle2 className="h-3.5 w-3.5" />
               <span className="font-mono font-bold tabular-nums">#{result.position}</span>
             </span>
@@ -188,7 +188,7 @@ export function ResultsTable({ results, domain }: { results: ScanResult[]; domai
   return (
     <Table>
       <TableHeader>
-        <TableRow className="border-[#14F0C3]/10 hover:bg-transparent">
+        <TableRow className="border-primary/10 hover:bg-transparent">
           <TableHead className="w-8" />
           <TableHead className="text-xs uppercase tracking-wider">Query</TableHead>
           <TableHead className="text-center w-32 text-xs uppercase tracking-wider">Position</TableHead>

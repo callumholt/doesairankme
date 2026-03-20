@@ -36,12 +36,12 @@ export function ScanProgress({
       <div className="relative">
         <Progress
           value={progressPercent}
-          className="h-2 [&>div]:bg-[#14F0C3] [&>div]:shadow-[0_0_10px_rgba(20,240,195,0.5)]"
+          className="h-2 [&>div]:bg-primary [&>div]:shadow-[0_0_10px_rgba(20,240,195,0.5)]"
         />
         <div className="flex justify-between mt-2">
           <span className="font-mono text-xs text-muted-foreground">{Math.round(progressPercent)}%</span>
           {status === "searching" && queryCount > 0 && (
-            <span className="font-mono text-xs text-[#14F0C3]">
+            <span className="font-mono text-xs text-primary">
               {resultCount}/{queryCount} queries
             </span>
           )}
@@ -62,11 +62,11 @@ export function ScanProgress({
           return (
             <div key={step.key} className="flex items-center gap-3 text-sm">
               {isDone ? (
-                <CheckCircle2 className="h-4 w-4 text-[#14F0C3]" />
+                <CheckCircle2 className="h-4 w-4 text-primary" />
               ) : isCurrent ? (
                 <div className="relative">
-                  <Loader2 className="h-4 w-4 animate-spin text-[#14F0C3]" />
-                  <div className="absolute inset-0 h-4 w-4 rounded-full bg-[#14F0C3]/20 animate-ping" />
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  <div className="absolute inset-0 h-4 w-4 rounded-full bg-primary/20 animate-ping" />
                 </div>
               ) : (
                 <Circle className="h-4 w-4 text-muted-foreground/20" />
@@ -76,7 +76,7 @@ export function ScanProgress({
                   isDone
                     ? "text-muted-foreground"
                     : isCurrent
-                      ? "text-[#14F0C3] font-medium"
+                      ? "text-primary font-medium"
                       : "text-muted-foreground/40"
                 }
               >

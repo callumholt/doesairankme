@@ -22,9 +22,9 @@ export function ScoreBadge({ score, className }: { score: number | null; classNa
     ? "border-red-500/30 text-red-400 shadow-[0_0_15px_-3px_rgba(239,68,68,0.4)]"
     : isMid
       ? "border-amber-500/30 text-amber-400 shadow-[0_0_15px_-3px_rgba(245,158,11,0.4)]"
-      : "border-[#14F0C3]/30 text-[#14F0C3] shadow-[0_0_15px_-3px_rgba(20,240,195,0.4)]"
+      : "border-primary/30 text-primary shadow-[0_0_15px_-3px_rgba(20,240,195,0.4)]"
 
-  const bgClasses = isLow ? "bg-red-500/10" : isMid ? "bg-amber-500/10" : "bg-[#14F0C3]/10"
+  const bgClasses = isLow ? "bg-red-500/10" : isMid ? "bg-amber-500/10" : "bg-primary/10"
 
   return (
     <div

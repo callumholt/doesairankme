@@ -25,7 +25,7 @@ function getBorderColour(score: number | null): string {
   if (score === null) return "border-l-muted-foreground/20"
   if (score < 30) return "border-l-red-500/60"
   if (score < 60) return "border-l-amber-500/60"
-  return "border-l-[#14F0C3]/60"
+  return "border-l-primary/60"
 }
 
 export function ScanCard({ scan }: { scan: Scan }) {
@@ -34,7 +34,7 @@ export function ScanCard({ scan }: { scan: Scan }) {
   return (
     <Link href={`/scans/${scan.id}`}>
       <Card
-        className={`border-l-[3px] ${getBorderColour(scan.score)} transition-all duration-200 hover:scale-[1.01] hover:shadow-md hover:shadow-[#14F0C3]/5 hover:border-[#14F0C3]/20`}
+        className={`border-l-[3px] ${getBorderColour(scan.score)} transition-all duration-200 hover:scale-[1.01] hover:shadow-md hover:shadow-primary/5 hover:border-primary/20`}
       >
         <CardContent className="flex items-center gap-4 py-4">
           <div className="flex-1 min-w-0">
@@ -47,7 +47,7 @@ export function ScanCard({ scan }: { scan: Scan }) {
             <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
               {isRunning ? (
                 <>
-                  <Loader2 className="h-3 w-3 animate-spin text-[#14F0C3]" />
+                  <Loader2 className="h-3 w-3 animate-spin text-primary" />
                   <span className="font-mono text-xs">{statusLabels[scan.status] || scan.status}</span>
                 </>
               ) : (
@@ -75,7 +75,7 @@ function getGroupBorderColour(scans: Scan[]): string {
   const avgScore = completedScans.reduce((sum, s) => sum + s.score!, 0) / completedScans.length
   if (avgScore < 30) return "border-l-red-500/60"
   if (avgScore < 60) return "border-l-amber-500/60"
-  return "border-l-[#14F0C3]/60"
+  return "border-l-primary/60"
 }
 
 export function GroupScanCard({ scans: groupScans, groupId }: { scans: Scan[]; groupId: string }) {
@@ -86,7 +86,7 @@ export function GroupScanCard({ scans: groupScans, groupId }: { scans: Scan[]; g
   return (
     <Link href={`/scans/group/${groupId}`}>
       <Card
-        className={`border-l-[3px] ${getGroupBorderColour(groupScans)} transition-all duration-200 hover:scale-[1.01] hover:shadow-md hover:shadow-[#14F0C3]/5 hover:border-[#14F0C3]/20`}
+        className={`border-l-[3px] ${getGroupBorderColour(groupScans)} transition-all duration-200 hover:scale-[1.01] hover:shadow-md hover:shadow-primary/5 hover:border-primary/20`}
       >
         <CardContent className="flex items-center gap-4 py-4">
           <div className="flex-1 min-w-0">
@@ -100,7 +100,7 @@ export function GroupScanCard({ scans: groupScans, groupId }: { scans: Scan[]; g
             <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
               {anyRunning ? (
                 <>
-                  <Loader2 className="h-3 w-3 animate-spin text-[#14F0C3]" />
+                  <Loader2 className="h-3 w-3 animate-spin text-primary" />
                   <span className="font-mono text-xs">Scanning...</span>
                 </>
               ) : (

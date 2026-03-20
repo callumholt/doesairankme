@@ -1,6 +1,7 @@
 "use client"
 
 import { LogOut, Plus } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut } from "next-auth/react"
@@ -11,14 +12,14 @@ export function Nav({ userName }: { userName?: string | null }) {
   const pathname = usePathname()
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#14F0C3]/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 border-b border-primary/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-14 max-w-5xl items-center px-4">
         <Link href="/dashboard" className="mr-8 flex items-center gap-2.5 group">
-          <div className="flex h-7 w-7 items-center justify-center rounded bg-[#14F0C3]/10 border border-[#14F0C3]/20 group-hover:bg-[#14F0C3]/20 transition-colors">
-            <span className="font-mono text-xs font-bold text-[#14F0C3]">AI</span>
+          <div className="flex h-7 w-7 items-center justify-center rounded bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors">
+            <span className="font-mono text-xs font-bold text-primary">AI</span>
           </div>
           <span className="font-mono text-sm font-bold tracking-tight">
-            Does AI Rank Me<span className="text-[#14F0C3]">?</span>
+            Does AI Rank Me<span className="text-primary">?</span>
           </span>
         </Link>
 
@@ -28,7 +29,7 @@ export function Nav({ userName }: { userName?: string | null }) {
             className={cn(
               "relative transition-colors hover:text-foreground",
               pathname === "/dashboard"
-                ? "text-[#14F0C3] font-medium after:absolute after:-bottom-[17px] after:left-0 after:right-0 after:h-px after:bg-[#14F0C3]"
+                ? "text-primary font-medium after:absolute after:-bottom-[17px] after:left-0 after:right-0 after:h-px after:bg-primary"
                 : "text-muted-foreground",
             )}
           >
@@ -39,7 +40,7 @@ export function Nav({ userName }: { userName?: string | null }) {
             className={cn(
               "relative transition-colors hover:text-foreground",
               pathname === "/billing"
-                ? "text-[#14F0C3] font-medium after:absolute after:-bottom-[17px] after:left-0 after:right-0 after:h-px after:bg-[#14F0C3]"
+                ? "text-primary font-medium after:absolute after:-bottom-[17px] after:left-0 after:right-0 after:h-px after:bg-primary"
                 : "text-muted-foreground",
             )}
           >
@@ -48,7 +49,7 @@ export function Nav({ userName }: { userName?: string | null }) {
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
-          <Button asChild size="sm" className="bg-[#14F0C3] text-zinc-950 hover:bg-[#14F0C3]/80 font-medium">
+          <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/80 font-medium">
             <Link href="/scans/new">
               <Plus className="mr-1 h-4 w-4" />
               New Scan
@@ -56,6 +57,8 @@ export function Nav({ userName }: { userName?: string | null }) {
           </Button>
 
           <span className="text-xs text-muted-foreground font-mono">{userName}</span>
+
+          <ThemeToggle />
 
           <Button
             variant="ghost"

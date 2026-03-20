@@ -20,14 +20,14 @@ type CheckDisplay = {
 type RecommendationFilter = "all" | "critical" | "important" | "suggestion"
 
 function StatusIcon({ status }: { status: CheckStatus }) {
-  if (status === "pass") return <CheckCircle className="h-5 w-5 text-[#14F0C3] shrink-0" />
+  if (status === "pass") return <CheckCircle className="h-5 w-5 text-primary shrink-0" />
   if (status === "warn") return <AlertCircle className="h-5 w-5 text-amber-400 shrink-0" />
   return <XCircle className="h-5 w-5 text-red-400 shrink-0" />
 }
 
 function StatusBadge({ status }: { status: CheckStatus }) {
   if (status === "pass") {
-    return <Badge className="bg-[#14F0C3]/10 text-[#14F0C3] border-[#14F0C3]/20 border">Pass</Badge>
+    return <Badge className="bg-primary/10 text-primary border-primary/20 border">Pass</Badge>
   }
   if (status === "warn") {
     return <Badge className="bg-amber-400/10 text-amber-400 border-amber-400/20 border">Warning</Badge>
@@ -220,9 +220,9 @@ function HeroScore({ score }: { score: number }) {
       ? "shadow-[0_0_60px_-10px_rgba(245,158,11,0.35)]"
       : "shadow-[0_0_60px_-10px_rgba(20,240,195,0.35)]"
 
-  const textColour = isLow ? "text-red-400" : isMid ? "text-amber-400" : "text-[#14F0C3]"
+  const textColour = isLow ? "text-red-400" : isMid ? "text-amber-400" : "text-primary"
 
-  const borderColour = isLow ? "border-red-500/20" : isMid ? "border-amber-500/20" : "border-[#14F0C3]/20"
+  const borderColour = isLow ? "border-red-500/20" : isMid ? "border-amber-500/20" : "border-primary/20"
 
   return (
     <div
@@ -298,7 +298,7 @@ function RecommendationCard({
             onClick={onToggle}
             aria-label={completed ? "Mark as incomplete" : "Mark as complete"}
             className={`mt-0.5 h-4 w-4 shrink-0 rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-              completed ? "bg-[#14F0C3] border-[#14F0C3]" : "border-border bg-transparent hover:border-muted-foreground"
+              completed ? "bg-primary border-primary" : "border-border bg-transparent hover:border-muted-foreground"
             }`}
           >
             {completed && (
@@ -504,7 +504,7 @@ export function SiteHealthTab({ scanId, scanComplete }: { scanId: string; scanCo
     return (
       <div className="flex items-center justify-center py-12">
         <div className="flex items-center gap-3">
-          <div className="h-2 w-2 rounded-full bg-[#14F0C3] animate-pulse" />
+          <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
           <p className="text-muted-foreground font-mono text-sm">Loading site health audit...</p>
         </div>
       </div>
@@ -531,9 +531,9 @@ export function SiteHealthTab({ scanId, scanComplete }: { scanId: string; scanCo
 
       {/* Summary row */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+        <div className="rounded-lg border border-primary/10 bg-primary/[0.02] p-4 text-center">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">Passed</p>
-          <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-[#14F0C3]">{passCount}</p>
+          <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-primary">{passCount}</p>
         </div>
         <div className="rounded-lg border border-amber-500/10 bg-amber-500/[0.02] p-4 text-center">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">Warnings</p>

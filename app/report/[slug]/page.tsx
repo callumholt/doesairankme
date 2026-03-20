@@ -67,9 +67,9 @@ function HeroScore({ score }: { score: number | null }) {
       ? "shadow-[0_0_60px_-10px_rgba(245,158,11,0.35)]"
       : "shadow-[0_0_60px_-10px_rgba(20,240,195,0.35)]"
 
-  const textColour = isLow ? "text-red-400" : isMid ? "text-amber-400" : "text-[#14F0C3]"
+  const textColour = isLow ? "text-red-400" : isMid ? "text-amber-400" : "text-primary"
 
-  const borderColour = isLow ? "border-red-500/20" : isMid ? "border-amber-500/20" : "border-[#14F0C3]/20"
+  const borderColour = isLow ? "border-red-500/20" : isMid ? "border-amber-500/20" : "border-primary/20"
 
   return (
     <div
@@ -133,22 +133,22 @@ export default async function PublicReportPage({ params }: Props) {
 
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+            <div className="rounded-lg border border-primary/10 bg-primary/[0.02] p-4 text-center">
               <p className="text-xs uppercase tracking-wider text-muted-foreground">Appearance Rate</p>
               <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
                 {scan.appearanceRate !== null ? `${Math.round(scan.appearanceRate * 100)}%` : "-"}
               </p>
             </div>
-            <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+            <div className="rounded-lg border border-primary/10 bg-primary/[0.02] p-4 text-center">
               <p className="text-xs uppercase tracking-wider text-muted-foreground">Avg Position</p>
               <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
                 {scan.avgPosition !== null ? scan.avgPosition.toFixed(1) : "-"}
               </p>
             </div>
-            <div className="rounded-lg border border-[#14F0C3]/10 bg-[#14F0C3]/[0.02] p-4 text-center">
+            <div className="rounded-lg border border-primary/10 bg-primary/[0.02] p-4 text-center">
               <p className="text-xs uppercase tracking-wider text-muted-foreground">Found / Total</p>
               <p className="text-2xl font-bold font-mono tabular-nums mt-1 text-foreground">
-                <span className="text-[#14F0C3]">{found.length}</span>
+                <span className="text-primary">{found.length}</span>
                 <span className="text-muted-foreground mx-1">/</span>
                 {scan.results.length}
               </p>
@@ -156,7 +156,7 @@ export default async function PublicReportPage({ params }: Props) {
           </div>
 
           {/* Results table */}
-          <Card className="border-[#14F0C3]/10">
+          <Card className="border-primary/10">
             <CardHeader>
               <CardTitle>Query Results</CardTitle>
             </CardHeader>
@@ -186,14 +186,14 @@ export default async function PublicReportPage({ params }: Props) {
           )}
 
           {/* CTA */}
-          <div className="rounded-xl border border-[#14F0C3]/20 bg-[#14F0C3]/[0.03] p-8 text-center">
+          <div className="rounded-xl border border-primary/20 bg-primary/[0.03] p-8 text-center">
             <h2 className="text-xl font-bold tracking-tight mb-2">How does your site rank?</h2>
             <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
               Find out how visible your website is to AI assistants like ChatGPT, Perplexity, and Gemini.
             </p>
             <Link
               href="/"
-              className="inline-flex items-center gap-2 rounded-lg bg-[#14F0C3] px-5 py-2.5 text-sm font-semibold text-black hover:bg-[#14F0C3]/90 transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
             >
               Scan your own site
             </Link>
