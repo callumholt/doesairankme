@@ -82,9 +82,8 @@ export default function NewScanPage() {
 
       const data = await res.json()
 
-      if (data.ids) {
-        // Multiple scans created, go to dashboard
-        router.push("/dashboard")
+      if (data.groupId) {
+        router.push(`/scans/group/${data.groupId}`)
       } else {
         router.push(`/scans/${data.id}`)
       }

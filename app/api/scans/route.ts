@@ -74,6 +74,7 @@ export async function POST(request: Request) {
 
     const domain = new URL(url).hostname.replace(/^www\./, "")
     const ids: string[] = []
+    const groupId = providerList.length > 1 ? nanoid() : null
 
     for (const provider of providerList) {
       const id = nanoid()
@@ -82,6 +83,7 @@ export async function POST(request: Request) {
       await db.insert(scans).values({
         id,
         userId: session.user.id,
+        groupId,
         url,
         domain,
         provider,
@@ -94,7 +96,10 @@ export async function POST(request: Request) {
       })
     }
 
-    return NextResponse.json(ids.length === 1 ? { id: ids[0] } : { ids }, { status: 201 })
+    if (groupId) {
+      return NextResponse.json({ groupId, ids }, { status: 201 })
+    }
+    return NextResponse.json({ id: ids[0] }, { status: 201 })
   } catch (err) {
     if (err instanceof Error && err.name === "ZodError") {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 })

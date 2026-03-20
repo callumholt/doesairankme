@@ -2,7 +2,7 @@ import { desc, eq } from "drizzle-orm"
 import { Plus } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ScanCard } from "@/components/scan-card"
+import { GroupScanCard, ScanCard } from "@/components/scan-card"
 import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth/config"
 import { getDb } from "@/lib/db/client"
@@ -87,9 +87,61 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {userScans.map((scan) => (
-            <ScanCard key={scan.id} scan={scan} />
-          ))}
+          {(() => {
+            // Group scans by groupId, keeping ungrouped scans separate
+            const grouped = new Map<string, typeof userScans>()
+            const ungrouped: typeof userScans = []
+
+            for (const scan of userScans) {
+              if (scan.groupId) {
+                if (!grouped.has(scan.groupId)) {
+                  grouped.set(scan.groupId, [])
+                }
+                grouped.get(scan.groupId)!.push(scan)
+              } else {
+                ungrouped.push(scan)
+              }
+            }
+
+            // Build display list in chronological order (newest first)
+            type DisplayItem =
+              | { type: "single"; scan: (typeof userScans)[0] }
+              | { type: "group"; groupId: string; scans: typeof userScans }
+            const items: DisplayItem[] = []
+
+            // Merge groups and singles by their createdAt
+            const groupEntries = Array.from(grouped.entries()).map(([gId, gScans]) => ({
+              type: "group" as const,
+              groupId: gId,
+              scans: gScans,
+              createdAt: gScans[0].createdAt,
+            }))
+            const singleEntries = ungrouped.map((scan) => ({
+              type: "single" as const,
+              scan,
+              createdAt: scan.createdAt,
+            }))
+
+            const all = [...groupEntries, ...singleEntries].sort(
+              (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+            )
+
+            for (const item of all) {
+              if (item.type === "group") {
+                items.push({ type: "group", groupId: item.groupId, scans: item.scans })
+              } else {
+                items.push({ type: "single", scan: item.scan })
+              }
+            }
+
+            return items.map((item) =>
+              item.type === "group" ? (
+                <GroupScanCard key={item.groupId} groupId={item.groupId} scans={item.scans} />
+              ) : (
+                <ScanCard key={item.scan.id} scan={item.scan} />
+              ),
+            )
+          })()}
         </div>
       )}
     </div>
