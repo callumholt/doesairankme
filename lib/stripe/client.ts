@@ -20,7 +20,7 @@ export const PLANS = {
   pro: {
     name: "Pro",
     scansPerMonth: Infinity,
-    providers: ["gemini", "openai", "perplexity-sonar", "perplexity-sonar-pro"] as string[],
+    providers: ["gemini", "openai", "perplexity"] as string[],
   },
 } as const
 

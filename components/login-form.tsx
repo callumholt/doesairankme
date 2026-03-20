@@ -63,7 +63,7 @@ export function LoginForm() {
               name="email"
               type="email"
               required
-              className="bg-background/50 border-border/50 focus-visible:ring-primary/50"
+              className="bg-background/50 border-border focus-visible:ring-primary/50"
             />
           </div>
           <div className="space-y-2">
@@ -76,7 +76,7 @@ export function LoginForm() {
                 name="password"
                 type={showPassword ? "text" : "password"}
                 required
-                className="bg-background/50 border-border/50 focus-visible:ring-primary/50 pr-10"
+                className="bg-background/50 border-border focus-visible:ring-primary/50 pr-10"
               />
               <button
                 type="button"
@@ -88,7 +88,7 @@ export function LoginForm() {
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4 pt-2">
+        <CardFooter className="flex flex-col gap-4 pt-4">
           <Button
             type="submit"
             className="w-full bg-primary text-primary-foreground hover:bg-primary/90 glow-teal"

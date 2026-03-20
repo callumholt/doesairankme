@@ -1,6 +1,6 @@
 import { createGeminiProvider } from "./gemini"
 import { createOpenAIProvider } from "./openai"
-import { createOpenRouterProvider } from "./openrouter"
+import { createPerplexityProvider } from "./perplexity"
 import type { ScanProvider } from "./types"
 
 export function getProvider(name: string): ScanProvider {
@@ -15,13 +15,12 @@ export function getProvider(name: string): ScanProvider {
       if (!key) throw new Error("OPENAI_API_KEY environment variable is required")
       return createOpenAIProvider(key)
     }
-    case "perplexity-sonar":
-    case "perplexity-sonar-pro": {
-      const key = process.env.OPENROUTER_API_KEY
-      if (!key) throw new Error("OPENROUTER_API_KEY environment variable is required")
-      return createOpenRouterProvider(key, name)
+    case "perplexity": {
+      const key = process.env.PERPLEXITY_API_KEY
+      if (!key) throw new Error("PERPLEXITY_API_KEY environment variable is required")
+      return createPerplexityProvider(key)
     }
     default:
-      throw new Error(`Unknown provider "${name}". Supported: gemini, openai, perplexity-sonar, perplexity-sonar-pro`)
+      throw new Error(`Unknown provider "${name}". Supported: gemini, openai, perplexity`)
   }
 }

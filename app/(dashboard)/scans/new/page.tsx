@@ -13,11 +13,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const ALL_PROVIDERS = [
   { value: "gemini", label: "Gemini" },
   { value: "openai", label: "OpenAI" },
-  { value: "perplexity-sonar", label: "Perplexity Sonar" },
-  { value: "perplexity-sonar-pro", label: "Perplexity Sonar Pro" },
+  { value: "perplexity", label: "Perplexity" },
 ]
 
-const PRO_PROVIDERS = ["openai", "perplexity-sonar", "perplexity-sonar-pro"]
+const PRO_PROVIDERS = ["openai", "perplexity"]
 
 export default function NewScanPage() {
   const router = useRouter()
@@ -175,11 +174,7 @@ export default function NewScanPage() {
                       {PRO_PROVIDERS.map((p) => (
                         <SelectItem key={p} value={p} disabled>
                           <span className="flex items-center gap-2">
-                            {p === "openai"
-                              ? "OpenAI"
-                              : p === "perplexity-sonar"
-                                ? "Perplexity Sonar"
-                                : "Perplexity Sonar Pro"}
+                            {p === "openai" ? "OpenAI" : "Perplexity"}
                             <Lock className="h-3 w-3 text-muted-foreground/40" />
                           </span>
                         </SelectItem>

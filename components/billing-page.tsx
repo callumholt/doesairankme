@@ -46,10 +46,18 @@ export function BillingPage() {
 
   async function handlePortal() {
     setLoading("portal")
-    const res = await fetch("/api/stripe/portal", { method: "POST" })
-    const data = await res.json()
-    if (data.url) {
-      window.location.href = data.url
+    try {
+      const res = await fetch("/api/stripe/portal", { method: "POST" })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        console.error("Portal error:", data.error)
+        alert(data.error || "Failed to open billing portal. Please try again.")
+      }
+    } catch (err) {
+      console.error("Portal request failed:", err)
+      alert("Failed to open billing portal. Please try again.")
     }
     setLoading(null)
   }

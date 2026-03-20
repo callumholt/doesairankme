@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-const providerEnum = z.enum(["gemini", "openai", "perplexity-sonar", "perplexity-sonar-pro"])
+const providerEnum = z.enum(["gemini", "openai", "perplexity"])
 
 export const createScanSchema = z
   .object({
