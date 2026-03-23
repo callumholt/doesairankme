@@ -57,11 +57,16 @@ export function HomePage() {
     setScanError("")
     setScanning(true)
 
+    let normalised = url.trim()
+    if (!/^https?:\/\//i.test(normalised)) {
+      normalised = `https://${normalised}`
+    }
+
     try {
       const res = await fetch("/api/scans/anonymous", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim() }),
+        body: JSON.stringify({ url: normalised }),
       })
 
       const data = await res.json()
@@ -235,8 +240,8 @@ export function HomePage() {
                 <div className="relative flex-1">
                   <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <input
-                    type="url"
-                    placeholder="https://yourwebsite.com"
+                    type="text"
+                    placeholder="yourwebsite.com"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     disabled={scanning}
