@@ -1,6 +1,6 @@
 "use client"
 
-import { Check, Lock, Zap } from "lucide-react"
+import { Check } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -15,8 +15,6 @@ const ALL_PROVIDERS = [
   { value: "openai", label: "OpenAI" },
   { value: "perplexity", label: "Perplexity" },
 ]
-
-const PRO_PROVIDERS = ["openai", "perplexity"]
 
 export default function NewScanPage() {
   const router = useRouter()
@@ -62,9 +60,9 @@ export default function NewScanPage() {
     }
 
     const body =
-      isPro && selectedProviders.length > 1
+      selectedProviders.length > 1
         ? { url, providers: selectedProviders, queryCount }
-        : { url, provider: isPro ? selectedProviders[0] : (formData.get("provider") as string) || "gemini", queryCount }
+        : { url, provider: selectedProviders[0] || "gemini", queryCount }
 
     try {
       const res = await fetch("/api/scans", {
@@ -120,9 +118,9 @@ export default function NewScanPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-                  AI Provider{isPro ? "s" : ""}
+                  AI Providers
                 </Label>
-                {isPro && selectedProviders.length < ALL_PROVIDERS.length && (
+                {selectedProviders.length < ALL_PROVIDERS.length && (
                   <button
                     type="button"
                     onClick={selectAll}
@@ -133,62 +131,34 @@ export default function NewScanPage() {
                 )}
               </div>
 
-              {isPro ? (
-                <div className="grid grid-cols-2 gap-2">
-                  {ALL_PROVIDERS.map((provider) => {
-                    const isSelected = selectedProviders.includes(provider.value)
-                    return (
-                      <button
-                        key={provider.value}
-                        type="button"
-                        onClick={() => toggleProvider(provider.value)}
-                        className={`flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm transition-all text-left ${
+              <div className="grid grid-cols-2 gap-2">
+                {ALL_PROVIDERS.map((provider) => {
+                  const isSelected = selectedProviders.includes(provider.value)
+                  return (
+                    <button
+                      key={provider.value}
+                      type="button"
+                      onClick={() => toggleProvider(provider.value)}
+                      className={`flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm transition-all text-left ${
+                        isSelected
+                          ? "border-primary/40 bg-primary/[0.08] text-foreground"
+                          : "border-border/50 bg-background/50 text-muted-foreground hover:border-border hover:text-foreground"
+                      }`}
+                    >
+                      <div
+                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-all ${
                           isSelected
-                            ? "border-primary/40 bg-primary/[0.08] text-foreground"
-                            : "border-border/50 bg-background/50 text-muted-foreground hover:border-border hover:text-foreground"
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-muted-foreground/30"
                         }`}
                       >
-                        <div
-                          className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-all ${
-                            isSelected
-                              ? "border-primary bg-primary text-primary-foreground"
-                              : "border-muted-foreground/30"
-                          }`}
-                        >
-                          {isSelected && <Check className="h-3 w-3" />}
-                        </div>
-                        {provider.label}
-                      </button>
-                    )
-                  })}
-                </div>
-              ) : (
-                <>
-                  <Select name="provider" defaultValue="gemini">
-                    <SelectTrigger className="bg-background/50 border-border/50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="gemini">Gemini</SelectItem>
-                      {PRO_PROVIDERS.map((p) => (
-                        <SelectItem key={p} value={p} disabled>
-                          <span className="flex items-center gap-2">
-                            {p === "openai" ? "OpenAI" : "Perplexity"}
-                            <Lock className="h-3 w-3 text-muted-foreground/40" />
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Link
-                    href="/billing"
-                    className="flex items-center gap-1.5 text-xs text-primary hover:underline underline-offset-2 mt-1"
-                  >
-                    <Zap className="h-3 w-3" />
-                    Upgrade to Pro to unlock all providers
-                  </Link>
-                </>
-              )}
+                        {isSelected && <Check className="h-3 w-3" />}
+                      </div>
+                      {provider.label}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -217,7 +187,7 @@ export default function NewScanPage() {
               </div>
             )}
 
-            {isPro && selectedProviders.length > 1 && (
+            {selectedProviders.length > 1 && (
               <div className="rounded-md border border-primary/15 bg-primary/[0.04] p-3 text-xs text-muted-foreground">
                 <span className="font-mono text-primary font-medium">
                   {selectedProviders.length} providers selected
@@ -234,7 +204,7 @@ export default function NewScanPage() {
             >
               {loading
                 ? "Starting scan..."
-                : selectedProviders.length > 1 && isPro
+                : selectedProviders.length > 1
                   ? `Start ${selectedProviders.length} Scans`
                   : "Start Scan"}
             </Button>

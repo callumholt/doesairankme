@@ -15,7 +15,7 @@ export const PLANS = {
   free: {
     name: "Free",
     scansPerMonth: 3,
-    providers: ["gemini"] as string[],
+    providers: ["gemini", "openai", "perplexity"] as string[],
   },
   pro: {
     name: "Pro",
